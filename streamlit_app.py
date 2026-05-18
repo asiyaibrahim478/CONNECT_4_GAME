@@ -121,34 +121,146 @@ if 'board' not in st.session_state:
 # --- UI Setup ---
 st.markdown("""
 <style>
-.board {
-    display: grid;
-    grid-template-columns: repeat(7, 60px);
-    grid-gap: 10px;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Outfit', sans-serif;
+}
+
+[data-testid="stAppViewContainer"] {
+    background-color: #0b0f1a;
+    color: #f9fafb;
+}
+
+[data-testid="stHeader"] {
+    background-color: transparent;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #111827;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.board-container {
     background: #1e40af;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    padding: 20px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 4px 6px rgba(0,0,0,0.3);
     margin: 0 auto;
     width: fit-content;
 }
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(7, 63px);
+    grid-gap: 12px;
+}
+
 .cell {
-    width: 60px;
-    height: 60px;
-    background: #0f172a;
+    width: 63px;
+    height: 63px;
+    background: #1f2937;
     border-radius: 50%;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
+    position: relative;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
 }
-.cell.red {
-    background: radial-gradient(circle at 30% 30%, #ff4b4b, #b91c1c);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4);
+
+.cell.red::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: radial-gradient(circle at 35% 35%, #ff5f5f 0%, #ef4444 50%, #991b1b 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.2);
+    border: 2px solid rgba(0,0,0,0.1);
+    animation: drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.cell.yellow {
-    background: radial-gradient(circle at 30% 30%, #fcd34d, #b45309);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4);
+
+.cell.yellow::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: radial-gradient(circle at 35% 35%, #fbdf24 0%, #f59e0b 50%, #92400e 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.2);
+    border: 2px solid rgba(0,0,0,0.1);
+    animation: drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.cell.win::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    z-index: 0;
+    animation: pulse-win 1.5s infinite;
+}
+
+.cell.win::after {
+    border: 3px solid white;
+    box-shadow: 0 0 15px white, inset 0 0 10px white;
+}
+
+@keyframes pulse-win {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes drop {
+    0% { transform: translateY(-150%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
 .stButton > button {
     width: 100%;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.status-badge {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.4rem 1.5rem;
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-block;
+    color: #f9fafb;
+}
+
+.win-status {
+    background: linear-gradient(45deg, #10b981, #3b82f6) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+}
+
+.loss-status {
+    background: linear-gradient(45deg, #ef4444, #991b1b) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.main-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+.main-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+.main-header h1 span {
+    color: #38bdf8;
+}
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -181,21 +293,29 @@ with st.sidebar:
                 except Exception as e:
                     st.error(f"Retraining failed: {e}")
 
-st.title("AI Connect 4")
-
+status_html = ""
 if not st.session_state.game_active:
     if st.session_state.winner == 1:
-        st.success("Congratulations! You Win! 🎉")
+        status_html = '<div class="status-badge win-status">Congratulations! You Win! 🎉</div>'
         st.balloons()
     elif st.session_state.winner == -1:
-        st.error("Sorry you lost, play best for the next time. 🤖")
+        status_html = '<div class="status-badge loss-status">Sorry you lost, play best for the next time. 🤖</div>'
     else:
-        st.info("It's a Draw! 🤝")
+        status_html = '<div class="status-badge">It\'s a Draw! 🤝</div>'
 else:
     if st.session_state.current_player == 1:
-        st.markdown("### Your Turn (Red)")
+        status_html = '<div class="status-badge">Your Turn (Red)</div>'
     else:
-        st.markdown("### AI is thinking... (Yellow)")
+        status_html = '<div class="status-badge">AI is thinking... (Yellow)</div>'
+
+st.markdown(f"""
+<div class="header-container">
+    <div class="main-header">
+        <h1>AI <span>Connect 4</span></h1>
+    </div>
+    {status_html}
+</div>
+""", unsafe_allow_html=True)
 
 def make_move(col):
     if st.session_state.game_active and st.session_state.current_player == 1:
@@ -259,20 +379,48 @@ if st.session_state.game_active and st.session_state.current_player == -1:
         st.session_state.current_player = 1
     st.rerun()
 
+def get_win_cells(board, player):
+    # horizontal
+    for r in range(ROWS):
+        for c in range(COLS - 3):
+            if all(board[r*COLS + c + i] == player for i in range(4)):
+                return [(r, c+i) for i in range(4)]
+    # vertical
+    for r in range(ROWS - 3):
+        for c in range(COLS):
+            if all(board[(r+i)*COLS + c] == player for i in range(4)):
+                return [(r+i, c) for i in range(4)]
+    # diagonal positive
+    for r in range(ROWS - 3):
+        for c in range(COLS - 3):
+            if all(board[(r+i)*COLS + c + i] == player for i in range(4)):
+                return [(r+i, c+i) for i in range(4)]
+    # diagonal negative
+    for r in range(3, ROWS):
+        for c in range(COLS - 3):
+            if all(board[(r-i)*COLS + c + i] == player for i in range(4)):
+                return [(r-i, c+i) for i in range(4)]
+    return []
+
+win_cells = []
+if not st.session_state.game_active and st.session_state.winner != 0:
+    win_cells = get_win_cells(st.session_state.board, st.session_state.winner)
+
 # --- Draw Board ---
 cols = st.columns([1, 1, 1, 1, 1, 1, 1, 4]) # Add empty columns for spacing
 for i in range(7):
     with cols[i]:
         st.button("⬇️", key=f"col_{i}", on_click=make_move, args=(i,), disabled=not st.session_state.game_active)
 
-board_html = '<div class="board">'
+board_html = '<div class="board-container"><div class="board">'
 for r in range(ROWS):
     for c in range(COLS):
         val = st.session_state.board[r*COLS + c]
         color_class = ""
+        win_class = " win" if (r, c) in win_cells else ""
         if val == 1: color_class = "red"
         elif val == -1: color_class = "yellow"
-        board_html += f'<div class="cell {color_class}"></div>'
-board_html += '</div>'
+        board_html += f'<div class="cell {color_class}{win_class}"></div>'
+board_html += '</div></div>'
 
 st.markdown(board_html, unsafe_allow_html=True)
