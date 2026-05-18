@@ -129,76 +129,43 @@ html, body, [class*="css"] {
 
 /* Custom Board and Header CSS */
 
-.board-container {
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) {
     background: #1e40af;
-    padding: 20px;
-    border-radius: 24px;
+    padding: 15px;
+    border-radius: 20px;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 4px 6px rgba(0,0,0,0.3);
+    width: fit-content !important;
     margin: 0 auto;
-    width: fit-content;
+    gap: 10px;
+    display: flex;
+    justify-content: center;
 }
 
-.board {
-    display: grid;
-    grid-template-columns: repeat(7, 63px);
-    grid-gap: 12px;
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"] {
+    width: 50px !important;
+    min-width: 50px !important;
+    flex: none !important;
+    gap: 10px;
 }
 
-.cell {
-    width: 63px;
-    height: 63px;
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) button {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    border: none !important;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.8) !important;
     background: #1f2937;
-    border-radius: 50%;
-    position: relative;
-    box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
+    transition: all 0.2s;
+    padding: 0 !important;
 }
 
-.cell.red::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    background: radial-gradient(circle at 35% 35%, #ff5f5f 0%, #ef4444 50%, #991b1b 100%);
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.2);
-    border: 2px solid rgba(0,0,0,0.1);
-    animation: drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) button:hover {
+    background: #374151;
+    border: 2px solid rgba(255,255,255,0.2) !important;
 }
 
-.cell.yellow::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    background: radial-gradient(circle at 35% 35%, #fbdf24 0%, #f59e0b 50%, #92400e 100%);
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.2);
-    border: 2px solid rgba(0,0,0,0.1);
-    animation: drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.cell.win::before {
-    content: '';
-    position: absolute;
-    inset: -6px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    z-index: 0;
-    animation: pulse-win 1.5s infinite;
-}
-
-.cell.win::after {
-    border: 3px solid white;
-    box-shadow: 0 0 15px white, inset 0 0 10px white;
-}
-
-@keyframes pulse-win {
-    0% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0; }
-    100% { transform: scale(1); opacity: 0.5; }
-}
-
-@keyframes drop {
-    0% { transform: translateY(-150%); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) button p {
+    display: none !important;
 }
 
 .stButton > button {
@@ -394,25 +361,27 @@ win_cells = []
 if not st.session_state.game_active and st.session_state.winner != 0:
     win_cells = get_win_cells(st.session_state.board, st.session_state.winner)
 
-# --- Draw Board ---
-spacer_left, center_col, spacer_right = st.columns([1, 2, 1])
-
-with center_col:
-    # Action buttons above the board
-    btn_cols = st.columns(7)
-    for i in range(7):
-        with btn_cols[i]:
-            st.button(str(i+1), key=f"col_{i}", on_click=make_move, args=(i,), disabled=not st.session_state.game_active)
-
-    board_html = '<div class="board-container"><div class="board">'
+# --- Dynamic Board Colors ---
+css = "<style>\\n"
+for c in range(COLS):
     for r in range(ROWS):
-        for c in range(COLS):
-            val = st.session_state.board[r*COLS + c]
-            color_class = ""
-            win_class = " win" if (r, c) in win_cells else ""
-            if val == 1: color_class = "red"
-            elif val == -1: color_class = "yellow"
-            board_html += f'<div class="cell {color_class}{win_class}"></div>'
-    board_html += '</div></div>'
+        val = st.session_state.board[r*COLS + c]
+        is_win = (r, c) in win_cells
+        selector = f'div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"]:nth-of-type({c+1}) div.element-container:nth-of-type({r+1}) button'
+        
+        if val == 1:
+            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #ff5f5f 0%, #ef4444 50%, #991b1b 100%) !important; }}\\n'
+        elif val == -1:
+            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #fbdf24 0%, #f59e0b 50%, #92400e 100%) !important; }}\\n'
+            
+        if is_win:
+            css += f'{selector} {{ border: 3px solid white !important; box-shadow: 0 0 15px white, inset 0 0 10px white !important; }}\\n'
+css += "</style>"
+st.markdown(css, unsafe_allow_html=True)
 
-    st.markdown(board_html, unsafe_allow_html=True)
+# --- Draw Board ---
+board_cols = st.columns(7)
+for c in range(COLS):
+    with board_cols[c]:
+        for r in range(ROWS):
+            st.button(" ", key=f"btn_{r}_{c}", on_click=make_move, args=(c,), disabled=not st.session_state.game_active)
