@@ -416,26 +416,26 @@ if not st.session_state.game_active and st.session_state.winner != 0:
     win_cells = get_win_cells(st.session_state.board, st.session_state.winner)
 
 # --- Dynamic Board Colors ---
-    css = "<style>\\n"
-    for c in range(COLS):
-        for r in range(ROWS):
-            val = st.session_state.board[r*COLS + c]
-            is_win = (r, c) in win_cells
-            selector = f'div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"]:nth-of-type({c+1}) div.element-container:nth-of-type({r+1}) button'
+css = "<style>\\n"
+for c in range(COLS):
+    for r in range(ROWS):
+        val = st.session_state.board[r*COLS + c]
+        is_win = (r, c) in win_cells
+        selector = f'div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"]:nth-of-type({c+1}) div.element-container:nth-of-type({r+1}) button'
+        
+        if val == 1:
+            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #ff7676 0%, #e02a2a 40%, #8b0000 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.4), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
+        elif val == -1:
+            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #fff085 0%, #facc15 40%, #b45309 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.6), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
             
-            if val == 1:
-                css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #ff7676 0%, #e02a2a 40%, #8b0000 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.4), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
-            elif val == -1:
-                css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #fff085 0%, #facc15 40%, #b45309 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.6), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
-                
-            if is_win:
-                css += f'{selector} {{ border: 3px solid white !important; box-shadow: 0 0 15px white, inset 0 0 10px white !important; }}\\n'
-    css += "</style>"
-    st.markdown(css, unsafe_allow_html=True)
+        if is_win:
+            css += f'{selector} {{ border: 3px solid white !important; box-shadow: 0 0 15px white, inset 0 0 10px white !important; }}\\n'
+css += "</style>"
+st.markdown(css, unsafe_allow_html=True)
 
-    # --- Draw Board ---
-    board_cols = st.columns(7)
-    for c in range(COLS):
-        with board_cols[c]:
-            for r in range(ROWS):
-                st.button(" ", key=f"btn_{r}_{c}", on_click=make_move, args=(c,), disabled=not st.session_state.game_active)
+# --- Draw Board ---
+board_cols = st.columns(7)
+for c in range(COLS):
+    with board_cols[c]:
+        for r in range(ROWS):
+            st.button(" ", key=f"btn_{r}_{c}", on_click=make_move, args=(c,), disabled=not st.session_state.game_active)
