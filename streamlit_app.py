@@ -127,19 +127,7 @@ html, body, [class*="css"] {
     font-family: 'Outfit', sans-serif;
 }
 
-[data-testid="stAppViewContainer"] {
-    background-color: #0b0f1a;
-    color: #f9fafb;
-}
-
-[data-testid="stHeader"] {
-    background-color: transparent;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #111827;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Custom Board and Header CSS */
 
 .board-container {
     background: #1e40af;
@@ -224,7 +212,7 @@ html, body, [class*="css"] {
     font-size: 1.1rem;
     font-weight: 600;
     padding: 0.4rem 1.5rem;
-    background: rgba(31, 41, 55, 0.5);
+    background: #1f2937;
     border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     display: inline-block;
@@ -407,20 +395,24 @@ if not st.session_state.game_active and st.session_state.winner != 0:
     win_cells = get_win_cells(st.session_state.board, st.session_state.winner)
 
 # --- Draw Board ---
-cols = st.columns([1, 1, 1, 1, 1, 1, 1, 4]) # Add empty columns for spacing
-for i in range(7):
-    with cols[i]:
-        st.button("⬇️", key=f"col_{i}", on_click=make_move, args=(i,), disabled=not st.session_state.game_active)
+spacer_left, center_col, spacer_right = st.columns([1, 2, 1])
 
-board_html = '<div class="board-container"><div class="board">'
-for r in range(ROWS):
-    for c in range(COLS):
-        val = st.session_state.board[r*COLS + c]
-        color_class = ""
-        win_class = " win" if (r, c) in win_cells else ""
-        if val == 1: color_class = "red"
-        elif val == -1: color_class = "yellow"
-        board_html += f'<div class="cell {color_class}{win_class}"></div>'
-board_html += '</div></div>'
+with center_col:
+    # Action buttons above the board
+    btn_cols = st.columns(7)
+    for i in range(7):
+        with btn_cols[i]:
+            st.button(str(i+1), key=f"col_{i}", on_click=make_move, args=(i,), disabled=not st.session_state.game_active)
 
-st.markdown(board_html, unsafe_allow_html=True)
+    board_html = '<div class="board-container"><div class="board">'
+    for r in range(ROWS):
+        for c in range(COLS):
+            val = st.session_state.board[r*COLS + c]
+            color_class = ""
+            win_class = " win" if (r, c) in win_cells else ""
+            if val == 1: color_class = "red"
+            elif val == -1: color_class = "yellow"
+            board_html += f'<div class="cell {color_class}{win_class}"></div>'
+    board_html += '</div></div>'
+
+    st.markdown(board_html, unsafe_allow_html=True)
