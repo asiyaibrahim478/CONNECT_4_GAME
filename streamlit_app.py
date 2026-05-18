@@ -158,7 +158,7 @@ with st.sidebar:
     level = st.radio("Difficulty", ['Easy', 'Medium', 'Hard'], index=1)
     
     st.header("Actions")
-    if st.button("Reset Game"):
+    if st.button("Reset ASIYA Game"):
         st.session_state.board = init_board()
         st.session_state.current_player = 1
         st.session_state.game_active = True
