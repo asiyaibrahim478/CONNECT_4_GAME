@@ -515,18 +515,13 @@ st.markdown(
         line-height: 1.4 !important;
     }
     
-    /* Centered Streamlit close button overlay */
-    .floating-close-wrapper {
+    /* Centered Close Results Button Sibling Selector */
+    .floating-close-wrapper + div.element-container button {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, calc(-50% + 195px)) !important;
         z-index: 99999999 !important;
-        display: flex !important;
-        justify-content: center !important;
-    }
-    
-    .floating-close-wrapper button {
         background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
         color: #ffffff !important;
         border: none !important;
@@ -541,24 +536,19 @@ st.markdown(
         height: 38px !important;
     }
     
-    .floating-close-wrapper button:hover {
-        transform: scale(1.04) !important;
+    .floating-close-wrapper + div.element-container button:hover {
+        transform: translate(-50%, calc(-50% + 195px)) scale(1.04) !important;
         box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
     }
-    
-    /* Floating top-right cross close button */
-    .floating-cross-wrapper {
+
+    /* Top-Right Cross Button Sibling Selector */
+    .floating-cross-wrapper + div.element-container button {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) !important; /* Top-right of 460px card */
+        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) !important; /* Top-right corner of 460px card */
         z-index: 99999999 !important;
-        display: flex !important;
-        justify-content: center !important;
-    }
-    
-    .floating-cross-wrapper button {
-        background: transparent !important;
+        background: rgba(15, 23, 42, 0.6) !important;
         color: #94a3b8 !important;
         border: 1px solid rgba(255, 255, 255, 0.15) !important;
         width: 32px !important;
@@ -576,11 +566,11 @@ st.markdown(
         box-shadow: none !important;
     }
     
-    .floating-cross-wrapper button:hover {
+    .floating-cross-wrapper + div.element-container button:hover {
         background: rgba(239, 68, 68, 0.2) !important;
         color: #ef4444 !important;
         border-color: rgba(239, 68, 68, 0.4) !important;
-        transform: scale(1.08) !important;
+        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) scale(1.08) !important;
     }
     </style>
     """,
