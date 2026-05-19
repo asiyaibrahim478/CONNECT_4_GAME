@@ -88,8 +88,26 @@ def preprocess_and_train():
     fig.savefig(comp_plot_path)
     plt.close(fig)
 
+    # 6. Copy the best model to active_model.pkl for live deployment
+    best_model_name = max(accuracies, key=accuracies.get)
+    best_accuracy = accuracies[best_model_name]
+    
+    import shutil
+    best_model_src = os.path.join(models_dir, f"{best_model_name}.pkl")
+    active_model_dst = os.path.join(models_dir, "active_model.pkl")
+    try:
+        shutil.copy2(best_model_src, active_model_dst)
+        print(f"Copied champion model '{best_model_name}' to 'active_model.pkl' for production deployment.")
+    except Exception as e:
+        print(f"Error copying champion model: {e}")
+
     print("\nAll models retrained and visualized successfully!")
-    return accuracies
+    return {
+        "total_rows": df.shape[0],
+        "accuracies": accuracies,
+        "best_model": best_model_name.replace("_", " "),
+        "best_accuracy": best_accuracy
+    }
 
 if __name__ == "__main__":
     preprocess_and_train()

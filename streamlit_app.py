@@ -10,15 +10,17 @@ from connect_db import save_game_result
 
 st.set_page_config(page_title="AI Connect 4 - MLOps Dashboard", layout="centered")
 
-# Use absolute paths
+# Use absolute paths to support production champion model promotion
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, 'models', 'Logistic_Regression.pkl')
+ACTIVE_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'active_model.pkl')
+FALLBACK_MODEL_PATH = os.path.join(BASE_DIR, 'models', 'Logistic_Regression.pkl')
 
 @st.cache_resource
 def load_ml_model():
     try:
-        if os.path.exists(MODEL_PATH):
-            model = joblib.load(MODEL_PATH)
+        path = ACTIVE_MODEL_PATH if os.path.exists(ACTIVE_MODEL_PATH) else FALLBACK_MODEL_PATH
+        if os.path.exists(path):
+            model = joblib.load(path)
             return model
     except Exception as e:
         pass
@@ -145,6 +147,10 @@ if 'level' not in st.session_state:
     st.session_state.level = 'Medium'
 if 'retrain_status' not in st.session_state:
     st.session_state.retrain_status = ""
+if 'show_retrain_modal' not in st.session_state:
+    st.session_state.show_retrain_modal = False
+if 'retrain_metrics' not in st.session_state:
+    st.session_state.retrain_metrics = None
 
 # --- Sidebar Panel ---
 st.sidebar.markdown(
@@ -179,24 +185,23 @@ if st.sidebar.button("Retrain AI Model", use_container_width=True):
     st.rerun()
 
 # --- Retraining Executor ---
+# Calls direct play history pipeline retraining and stores result metrics
 if st.session_state.retrain_status == "training":
     with st.sidebar:
         with st.spinner("Retraining models using play history..."):
-            script_path = os.path.join(BASE_DIR, "train_models.py")
-            result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, cwd=BASE_DIR)
-            if result.returncode == 0:
-                st.session_state.retrain_status = "success"
-                load_ml_model.clear()
-                model = load_ml_model()
-            else:
-                try:
-                    from train_models import preprocess_and_train
-                    preprocess_and_train()
+            try:
+                from train_models import preprocess_and_train
+                metrics = preprocess_and_train()
+                if metrics and "accuracies" in metrics:
+                    st.session_state.retrain_metrics = metrics
                     st.session_state.retrain_status = "success"
+                    st.session_state.show_retrain_modal = True
                     load_ml_model.clear()
                     model = load_ml_model()
-                except Exception as e:
-                    st.session_state.retrain_status = f"failed: {str(e)}"
+                else:
+                    st.session_state.retrain_status = "failed: Training failed to return metrics."
+            except Exception as e:
+                st.session_state.retrain_status = f"failed: {str(e)}"
     st.rerun()
 
 if st.session_state.retrain_status == "success":
@@ -418,10 +423,183 @@ st.markdown(
     footer {
         display: none !important;
     }
+    
+    /* MLOps glassmorphism modal popup styles */
+    .modal-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(8, 10, 18, 0.82) !important;
+        backdrop-filter: blur(8px) !important;
+        z-index: 99999998 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .modal-card {
+        background: linear-gradient(135deg, #111827, #1f2937) !important;
+        border: 2px solid rgba(236, 72, 153, 0.3) !important;
+        border-radius: 20px !important;
+        padding: 2.2rem !important;
+        width: 90% !important;
+        max-width: 460px !important;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5),
+                    0 0 40px rgba(236, 72, 153, 0.15) !important;
+        color: #ffffff !important;
+        animation: modal-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        position: relative !important;
+    }
+    
+    @keyframes modal-pop {
+        0% { transform: scale(0.9); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-title {
+        font-size: 1.45rem !important;
+        font-weight: 700 !important;
+        color: #ffffff !important;
+        text-align: center !important;
+        margin: 0 0 0.5rem 0 !important;
+        background: linear-gradient(135deg, #f43f5e, #8b5cf6) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+    
+    .modal-meta {
+        text-align: center !important;
+        color: #94a3b8 !important;
+        font-size: 0.95rem !important;
+        margin: 0 0 1.2rem 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding-bottom: 0.75rem !important;
+    }
+    
+    .model-metrics-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.6rem !important;
+        margin-bottom: 1.2rem !important;
+    }
+    
+    .metric-item {
+        display: flex !important;
+        justify-content: space-between !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        padding: 0.6rem 0.9rem !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .metric-item span {
+        color: #cbd5e1 !important;
+    }
+    
+    .metric-item strong {
+        color: #38bdf8 !important;
+    }
+    
+    .best-model-badge {
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(139, 92, 246, 0.12)) !important;
+        border: 1px solid rgba(236, 72, 153, 0.25) !important;
+        border-radius: 12px !important;
+        padding: 0.85rem !important;
+        text-align: center !important;
+        font-size: 0.98rem !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 15px rgba(236, 72, 153, 0.08) !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Centered Streamlit close button overlay */
+    .floating-close-wrapper {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, calc(-50% + 195px)) !important;
+        z-index: 99999999 !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    .floating-close-wrapper button {
+        background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0.5rem 2rem !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 0.92rem !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35) !important;
+        transition: all 0.2s !important;
+        min-width: 150px !important;
+        height: 38px !important;
+    }
+    
+    .floating-close-wrapper button:hover {
+        transform: scale(1.04) !important;
+        box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
+
+# --- MLOps Pipeline Results Modal ---
+if st.session_state.show_retrain_modal and st.session_state.retrain_metrics:
+    metrics = st.session_state.retrain_metrics
+    rf_acc = metrics["accuracies"].get("Random_Forest", 0.0) * 100
+    gb_acc = metrics["accuracies"].get("Gradient_Boosting", 0.0) * 100
+    lr_acc = metrics["accuracies"].get("Logistic_Regression", 0.0) * 100
+    total_rows = metrics["total_rows"]
+    best_model = metrics["best_model"]
+    best_acc = metrics["best_accuracy"] * 100
+    
+    st.markdown(
+        f"""
+        <div class="modal-overlay">
+            <div class="modal-card">
+                <h3 class="modal-title">MLOps Retraining Success! 🧠</h3>
+                <p class="modal-meta">Combined play dataset: <strong>{total_rows:,} rows</strong></p>
+                <div class="model-metrics-list">
+                    <div class="metric-item">
+                        <span>Random Forest Accuracy:</span>
+                        <strong>{rf_acc:.2f}%</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Gradient Boosting Accuracy:</span>
+                        <strong>{gb_acc:.2f}%</strong>
+                    </div>
+                    <div class="metric-item">
+                        <span>Logistic Regression Accuracy:</span>
+                        <strong>{lr_acc:.2f}%</strong>
+                    </div>
+                </div>
+                <div class="best-model-badge">
+                    🏆 Champion Model Promoted: <br>
+                    <strong style="color: #f59e0b; font-size: 1.05rem;">{best_model} ({best_acc:.2f}%)</strong>
+                </div>
+                <p style="font-size: 0.82rem; color: #94a3b8; text-align: center; margin-top: 1rem; margin-bottom: 0;">
+                    The live gameplay bot is now instantly upgraded with this champion model!
+                </p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Render the native Streamlit button positioned absolutely over the close button placeholder
+    with st.container():
+        st.markdown('<div class="floating-close-wrapper">', unsafe_allow_html=True)
+        if st.button("Close Results", key="close_retrain_modal"):
+            st.session_state.show_retrain_modal = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- AI Turn Handler ---
 # This runs at the very bottom, AFTER the page has fully completed rendering.
