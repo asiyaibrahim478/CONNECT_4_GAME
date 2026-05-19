@@ -212,7 +212,7 @@ elif st.session_state.retrain_status.startswith("failed"):
 st.markdown(
     """
     <div style="text-align: center; margin-top: 0; margin-bottom: 0.5rem;">
-        <h1 style="color: #ffffff; font-size: 3rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
+        <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
             AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Connect 4</span>
         </h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Beat the Logistic Regression powered AI bot</p>
@@ -309,13 +309,13 @@ st.markdown(
     /* Style the columns container to represent the Connect 4 Board */
     div[data-testid="stHorizontalBlock"] {
         background: linear-gradient(135deg, #1e3a8a, #3b82f6) !important;
-        padding: 24px !important;
+        padding: 12px !important;
         border-radius: 20px !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 
                     0 0 30px rgba(59, 130, 246, 0.3) !important;
         max-width: 580px !important;
-        margin: 0.5rem auto !important;
-        gap: 12px !important;
+        margin: 0 auto !important;
+        gap: 8px !important;
         display: flex !important;
         justify-content: center !important;
     }
@@ -325,13 +325,13 @@ st.markdown(
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 10px !important;
+        gap: 6px !important;
     }
     
     /* Style cells globally (the native Streamlit buttons) */
     div[data-testid="stHorizontalBlock"] button {
-        width: 56px !important;
-        height: 56px !important;
+        width: 44px !important;
+        height: 44px !important;
         border-radius: 50% !important;
         border: 3px solid #0f172a !important;
         background: radial-gradient(circle at 30% 30%, #1e293b, #0f172a) !important;
@@ -355,7 +355,7 @@ st.markdown(
         transform: translate(-50%, -50%) !important;
         width: auto !important;
         height: auto !important;
-        font-size: 48px !important;
+        font-size: 36px !important;
         line-height: 1 !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -392,12 +392,12 @@ st.markdown(
     /* Banner Notifications style */
     .player-banner, .ai-banner, .win-banner, .loss-banner, .draw-banner {
         text-align: center;
-        padding: 0.8rem;
+        padding: 0.5rem;
         border-radius: 12px;
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 1rem;
         max-width: 580px;
-        margin: 0 auto 0.5rem auto;
+        margin: 0 auto 0.2rem auto;
     }
     .player-banner {
         background: rgba(244, 63, 94, 0.15);
