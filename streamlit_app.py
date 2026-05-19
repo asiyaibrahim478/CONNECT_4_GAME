@@ -330,8 +330,8 @@ st.markdown(
     
     /* Style cells globally (the native Streamlit buttons) */
     div[data-testid="stHorizontalBlock"] button {
-        width: 44px !important;
-        height: 44px !important;
+        width: 50px !important;
+        height: 50px !important;
         border-radius: 50% !important;
         border: 3px solid #0f172a !important;
         background: radial-gradient(circle at 30% 30%, #1e293b, #0f172a) !important;
@@ -355,7 +355,7 @@ st.markdown(
         transform: translate(-50%, -50%) !important;
         width: auto !important;
         height: auto !important;
-        font-size: 36px !important;
+        font-size: 42px !important;
         line-height: 1 !important;
         margin: 0 !important;
         padding: 0 !important;
