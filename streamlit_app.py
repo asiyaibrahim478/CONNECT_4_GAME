@@ -340,8 +340,10 @@ st.markdown(
     }
 
     /* Media queries for high-performance responsiveness on smaller Android screens */
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
         div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important; /* Force row layout always */
+            flex-wrap: nowrap !important; /* Force no wrap always */
             padding: 8px !important;
             gap: 4px !important;
             border-radius: 12px !important;
@@ -349,7 +351,14 @@ st.markdown(
         }
         
         div[data-testid="column"] {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
             gap: 4px !important;
+            flex: 1 1 0% !important; /* Force columns to share width equally */
+            min-width: 0 !important; /* Prevent collapsing/wrapping on mobile */
+            max-width: none !important; /* Prevent Streamlit mobile overrides */
+            width: auto !important; /* Prevent Streamlit column stretching */
         }
         
         div[data-testid="stHorizontalBlock"] button {
