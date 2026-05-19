@@ -152,19 +152,6 @@ if 'show_retrain_modal' not in st.session_state:
 if 'retrain_metrics' not in st.session_state:
     st.session_state.retrain_metrics = None
 
-# --- Query Params Check for Close Action ---
-try:
-    if st.query_params.get("close_modal") == "true":
-        st.session_state.show_retrain_modal = False
-        st.query_params.clear()
-        st.rerun()
-except AttributeError:
-    params = st.experimental_get_query_params()
-    if "close_modal" in params:
-        st.session_state.show_retrain_modal = False
-        st.experimental_set_query_params()
-        st.rerun()
-
 # --- Sidebar Panel ---
 st.sidebar.markdown(
     """
@@ -528,61 +515,62 @@ st.markdown(
         line-height: 1.4 !important;
     }
     
-    /* Style the main HTML close button link */
-    .modal-close-btn {
-        display: inline-block !important;
+    /* Main Close Results Button (Native Streamlit, Zero-Refresh!) */
+    .floating-close-wrapper ~ div.element-container button {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, calc(-50% + 195px)) !important;
+        z-index: 99999999 !important;
         background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
         color: #ffffff !important;
-        padding: 0.55rem 2.2rem !important;
+        border: none !important;
+        padding: 0.55rem 2rem !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
-        text-align: center !important;
-        text-decoration: none !important;
         cursor: pointer !important;
         box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35) !important;
         transition: all 0.2s !important;
-        margin: 1.4rem auto 0 auto !important;
-        display: block !important;
-        width: 140px !important;
-        line-height: 1.4 !important;
+        min-width: 150px !important;
+        height: 38px !important;
     }
     
-    .modal-close-btn:hover {
-        transform: translateY(-2px) !important;
+    .floating-close-wrapper ~ div.element-container button:hover {
+        transform: translate(-50%, calc(-50% + 195px)) scale(1.04) !important;
         box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
-        color: #ffffff !important;
-        text-decoration: none !important;
     }
-    
-    /* Style the top-right HTML cross close link */
-    .modal-close-cross {
-        position: absolute !important;
-        top: 15px !important;
-        right: 15px !important;
-        font-size: 26px !important;
-        font-weight: 300 !important;
+
+    /* Top-Right Cross Button (Native Streamlit, Zero-Refresh!) */
+    .floating-cross-wrapper ~ div.element-container button {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) !important; /* Top-right corner of 460px card */
+        z-index: 99999999 !important;
+        background: rgba(15, 23, 42, 0.6) !important;
         color: #94a3b8 !important;
-        text-decoration: none !important;
-        cursor: pointer !important;
-        line-height: 1 !important;
-        transition: all 0.2s !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         width: 32px !important;
         height: 32px !important;
+        min-width: 32px !important;
+        border-radius: 50% !important;
+        font-size: 18px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 50% !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        background: rgba(15, 23, 42, 0.6) !important;
+        padding: 0 !important;
+        transition: all 0.2s !important;
+        box-shadow: none !important;
     }
     
-    .modal-close-cross:hover {
-        color: #ef4444 !important;
+    .floating-cross-wrapper ~ div.element-container button:hover {
         background: rgba(239, 68, 68, 0.2) !important;
+        color: #ef4444 !important;
         border-color: rgba(239, 68, 68, 0.4) !important;
-        text-decoration: none !important;
-        transform: scale(1.08) !important;
+        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) scale(1.08) !important;
     }
     </style>
     """,
@@ -602,7 +590,6 @@ if st.session_state.show_retrain_modal and st.session_state.retrain_metrics:
     st.markdown(
 f"""<div class="modal-overlay">
 <div class="modal-card">
-<a href="?close_modal=true" target="_self" class="modal-close-cross">&times;</a>
 <h3 class="modal-title">MLOps Retraining Success! 🧠</h3>
 <p class="modal-meta">Combined play dataset: <strong>{total_rows:,} rows</strong></p>
 <div class="model-metrics-list">
@@ -623,14 +610,24 @@ f"""<div class="modal-overlay">
 🏆 Champion Model Promoted: <br>
 <strong style="color: #f59e0b; font-size: 1.05rem;">{best_model} ({best_acc:.2f}%)</strong>
 </div>
-<p style="font-size: 0.82rem; color: #94a3b8; text-align: center; margin-top: 1rem; margin-bottom: 0;">
+<p style="font-size: 0.82rem; color: #94a3b8; text-align: center; margin-top: 1rem; margin-bottom: 1.5rem;">
 The live gameplay bot is now instantly upgraded with this champion model!
 </p>
-<a href="?close_modal=true" target="_self" class="modal-close-btn">Close Results</a>
 </div>
 </div>""",
         unsafe_allow_html=True
     )
+    
+    # Render native close buttons to execute zero-refresh actions natively over WebSockets
+    st.markdown('<div class="floating-cross-wrapper"></div>', unsafe_allow_html=True)
+    if st.button("×", key="close_retrain_modal_cross"):
+        st.session_state.show_retrain_modal = False
+        st.rerun()
+
+    st.markdown('<div class="floating-close-wrapper"></div>', unsafe_allow_html=True)
+    if st.button("Close Results", key="close_retrain_modal"):
+        st.session_state.show_retrain_modal = False
+        st.rerun()
 
 # --- AI Turn Handler ---
 # This runs at the very bottom, AFTER the page has fully completed rendering.
