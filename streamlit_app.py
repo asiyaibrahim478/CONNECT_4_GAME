@@ -370,18 +370,28 @@ st.markdown(
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        font-size: 44px !important;
-        line-height: 1 !important;
         padding: 0 !important;
+        position: relative !important;
+        overflow: visible !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
-    /* Target nested elements to override Streamlit paragraph font-size restrictions */
+    /* Target nested elements to override Streamlit paragraph font-size restrictions and center perfectly */
     div[data-testid="stHorizontalBlock"] button * {
-        font-size: 44px !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: auto !important;
+        height: auto !important;
+        font-size: 48px !important;
         line-height: 1 !important;
         margin: 0 !important;
         padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
     }
     
     /* Interactive Hover on empty slots during player turn */
