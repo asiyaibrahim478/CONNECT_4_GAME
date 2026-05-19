@@ -296,20 +296,20 @@ st.markdown(
     html, body {
         background-color: #0f172a !important;
         font-family: 'Outfit', sans-serif !important;
-        overflow: hidden !important;
+        overflow: auto !important;
         margin: 0 !important;
         padding: 0 !important;
-        height: 100vh !important;
+        min-height: 100vh !important;
     }
     
     .stApp {
-        overflow: hidden !important;
+        overflow: auto !important;
     }
     
     .block-container {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        overflow: hidden !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        overflow: auto !important;
     }
     
     /* Style the columns container to represent the Connect 4 Board */
@@ -323,6 +323,8 @@ st.markdown(
         margin: 0 auto !important;
         gap: 8px !important;
         display: flex !important;
+        flex-direction: row !important; /* Force row layout always */
+        flex-wrap: nowrap !important; /* Force no wrap always */
         justify-content: center !important;
     }
     
@@ -332,6 +334,59 @@ st.markdown(
         flex-direction: column !important;
         align-items: center !important;
         gap: 6px !important;
+        flex: 1 1 0% !important; /* Force columns to share width equally */
+        min-width: 0 !important; /* Prevent collapsing/wrapping on mobile */
+        max-width: none !important; /* Prevent Streamlit mobile overrides */
+    }
+
+    /* Media queries for high-performance responsiveness on smaller Android screens */
+    @media (max-width: 600px) {
+        div[data-testid="stHorizontalBlock"] {
+            padding: 8px !important;
+            gap: 4px !important;
+            border-radius: 12px !important;
+            max-width: 95% !important;
+        }
+        
+        div[data-testid="column"] {
+            gap: 4px !important;
+        }
+        
+        div[data-testid="stHorizontalBlock"] button {
+            width: 36px !important;
+            height: 36px !important;
+            border-width: 2px !important;
+        }
+        
+        div[data-testid="stHorizontalBlock"] button * {
+            font-size: 26px !important; /* Scales down emojis nicely */
+        }
+        
+        .player-banner, .ai-banner, .win-banner, .loss-banner, .draw-banner {
+            font-size: 0.9rem !important;
+            padding: 0.4rem !important;
+        }
+    }
+    
+    @media (max-width: 380px) {
+        div[data-testid="stHorizontalBlock"] {
+            padding: 6px !important;
+            gap: 2px !important;
+        }
+        
+        div[data-testid="column"] {
+            gap: 2px !important;
+        }
+
+        div[data-testid="stHorizontalBlock"] button {
+            width: 28px !important;
+            height: 28px !important;
+            border-width: 1.5px !important;
+        }
+        
+        div[data-testid="stHorizontalBlock"] button * {
+            font-size: 20px !important;
+        }
     }
     
     /* Style cells globally (the native Streamlit buttons) */
