@@ -231,7 +231,7 @@ if st.session_state.game_active and st.session_state.current_player == -1:
     st.rerun()
 
 # --- Retraining Executer ---
-retrain_message_html = ""
+retrain_message = ""
 if st.session_state.get('needs_retrain', False):
     st.session_state.needs_retrain = False
     
@@ -239,18 +239,18 @@ if st.session_state.get('needs_retrain', False):
     result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, cwd=BASE_DIR)
     
     if result.returncode == 0:
-        retrain_message_html = "<script>alert('AI Retrained successfully! It is now smarter.');</script>"
+        retrain_message = "AI Retrained successfully! It is now smarter."
         load_ml_model.clear()
         model = load_ml_model()
     else:
         try:
             from train_models import preprocess_and_train
             preprocess_and_train()
-            retrain_message_html = "<script>alert('AI Retrained successfully (fallback)! It is now smarter.');</script>"
+            retrain_message = "AI Retrained successfully (fallback)! It is now smarter."
             load_ml_model.clear()
             model = load_ml_model()
         except Exception as e:
-            retrain_message_html = f"<script>alert('Retraining failed: {str(e)}');</script>"
+            retrain_message = f"Retraining failed: {str(e)}"
 
 # --- HTML/CSS Compiler & Renderer ---
 
@@ -399,24 +399,47 @@ main_html = "\n".join([line.strip() for line in raw_main_html.split("\n") if lin
 
 st.markdown(main_html, unsafe_allow_html=True)
 
-# Inject event bridge scripts & confetti
-confetti_html = ""
+# Build Event Bridge JavaScript inside a Same-Origin Iframe
+js_content = ""
+
+# Add retrain notification alert
+if retrain_message:
+    js_content += f"\nalert({repr(retrain_message)});\n"
+
+# Add Canvas Confetti loading and animation if user won
 if not st.session_state.game_active and st.session_state.winner == 1:
-    confetti_html = """
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script>
+    js_content += """
+    if (!window.parent.document.querySelector('script[src*="canvas-confetti"]')) {
+        const script = window.parent.document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js";
+        window.parent.document.head.appendChild(script);
+    }
+    
     setTimeout(function() {
+        if (typeof window.parent.confetti === 'function') {
+            runCelebration();
+        } else {
+            let checkInterval = setInterval(function() {
+                if (typeof window.parent.confetti === 'function') {
+                    clearInterval(checkInterval);
+                    runCelebration();
+                }
+            }, 100);
+        }
+    }, 200);
+
+    function runCelebration() {
         const duration = 3 * 1000;
         const end = Date.now() + duration;
         (function frame() {
-            confetti({
+            window.parent.confetti({
                 particleCount: 7,
                 angle: 60,
                 spread: 55,
                 origin: { x: 0 },
                 colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff']
             });
-            confetti({
+            window.parent.confetti({
                 particleCount: 7,
                 angle: 120,
                 spread: 55,
@@ -427,54 +450,47 @@ if not st.session_state.game_active and st.session_state.winner == 1:
                 requestAnimationFrame(frame);
             }
         }());
-        confetti({
+        window.parent.confetti({
             particleCount: 150,
             spread: 100,
             origin: { y: 0.6 },
             colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff', '#ef4444']
         });
-    }, 100);
-    </script>
+    }
     """
 
-raw_js_bridge = f"""
-{confetti_html}
-{retrain_message_html}
-<script>
-function clickColumn(col) {{
-    clickStreamlitButton("hidden_move_" + col);
-}}
-function clickDifficulty(level) {{
-    clickStreamlitButton("hidden_" + level);
-}}
-function clickReset() {{
-    clickStreamlitButton("hidden_reset");
-}}
-function clickRetrain() {{
-    if (confirm("This will retrain all models using your latest game history. Continue?")) {{
-        clickStreamlitButton("hidden_retrain");
-    }}
-}}
-function clickStreamlitButton(text) {{
-    let buttons = Array.from(document.querySelectorAll('button'));
-    try {{
-        if (window.parent && window.parent.document) {{
-            buttons = buttons.concat(Array.from(window.parent.document.querySelectorAll('button')));
-        }}
-    }} catch (e) {{
-        console.warn("Parent document access blocked:", e);
-    }}
-    for (const btn of buttons) {{
-        if (btn.textContent.trim() === text) {{
+# Add core event bridge handlers directly onto window.parent (the main window scope)
+js_content += """
+window.parent.clickColumn = function(col) {
+    window.parent.clickStreamlitButton('hidden_move_' + col);
+};
+window.parent.clickDifficulty = function(level) {
+    window.parent.clickStreamlitButton('hidden_' + level);
+};
+window.parent.clickReset = function() {
+    window.parent.clickStreamlitButton('hidden_reset');
+};
+window.parent.clickRetrain = function() {
+    if (confirm('This will retrain all models using your latest game history. Continue?')) {
+        window.parent.clickStreamlitButton('hidden_retrain');
+    }
+};
+window.parent.clickStreamlitButton = function(text) {
+    let buttons = Array.from(window.parent.document.querySelectorAll('button'));
+    for (const btn of buttons) {
+        if (btn.textContent.trim() === text) {
             btn.click();
             return true;
-        }}
-    }}
-    console.error("Streamlit button not found: " + text);
+        }
+    }
+    console.error('Streamlit button not found: ' + text);
     return false;
-}}
-</script>
+};
 """
-js_bridge_tag = "\n".join([line.strip() for line in raw_js_bridge.split("\n") if line.strip()])
 
+# Compress JavaScript content to be markdown-safe (no empty lines, no leading spaces)
+clean_js_content = "\n".join([line.strip() for line in js_content.split("\n") if line.strip()])
+
+# Build same-origin iframe tag containing the Javascript
+js_bridge_tag = f'<iframe srcdoc="<script>\n{clean_js_content}\n</script>" style="display:none;width:0;height:0;border:none;"></iframe>'
 st.markdown(js_bridge_tag, unsafe_allow_html=True)
