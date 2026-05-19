@@ -6,6 +6,7 @@ import math
 import subprocess
 import sys
 import time
+import html
 from connect_db import save_game_result
 
 st.set_page_config(page_title="AI Connect 4 - MLOps Dashboard", layout="wide")
@@ -491,6 +492,9 @@ window.parent.clickStreamlitButton = function(text) {
 # Compress JavaScript content to be markdown-safe (no empty lines, no leading spaces)
 clean_js_content = "\n".join([line.strip() for line in js_content.split("\n") if line.strip()])
 
+# Escape the JS content to prevent it from breaking the HTML srcdoc attribute quotes
+escaped_js_content = html.escape(clean_js_content)
+
 # Build same-origin iframe tag containing the Javascript
-js_bridge_tag = f'<iframe srcdoc="<script>\n{clean_js_content}\n</script>" style="display:none;width:0;height:0;border:none;"></iframe>'
+js_bridge_tag = f'<iframe srcdoc="<script>\n{escaped_js_content}\n</script>" style="display:none;width:0;height:0;border:none;"></iframe>'
 st.markdown(js_bridge_tag, unsafe_allow_html=True)
