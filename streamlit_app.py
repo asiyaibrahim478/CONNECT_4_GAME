@@ -567,7 +567,7 @@ st.markdown(
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        transform: translate(-50%, calc(-50% + 210px)) !important;
+        transform: translate(-50%, calc(-50% + 260px)) !important;
         z-index: 99999999 !important;
         background: linear-gradient(135deg, #1e293b, #0f172a) !important;
         color: #ffffff !important;
@@ -584,7 +584,7 @@ st.markdown(
     }
     
     div.element-container:has(.floating-close-wrapper) + div.element-container button:hover {
-        transform: translate(-50%, calc(-50% + 210px)) scale(1.05) !important;
+        transform: translate(-50%, calc(-50% + 260px)) scale(1.05) !important;
         background: linear-gradient(135deg, #334155, #1e293b) !important;
         border-color: rgba(244, 63, 94, 0.6) !important;
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 
