@@ -447,88 +447,119 @@ st.markdown(
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background: rgba(8, 10, 18, 0.82) !important;
-        backdrop-filter: blur(8px) !important;
+        background: rgba(5, 8, 15, 0.75) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
         z-index: 99999998 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        animation: fade-in 0.3s ease-out !important;
+    }
+    
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
     
     .modal-card {
-        background: linear-gradient(135deg, #111827, #1f2937) !important;
-        border: 2px solid rgba(236, 72, 153, 0.3) !important;
-        border-radius: 20px !important;
-        padding: 2.2rem !important;
+        background: rgba(17, 24, 39, 0.75) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 28px !important;
+        padding: 2.8rem 2.2rem !important;
         width: 90% !important;
-        max-width: 460px !important;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5),
-                    0 0 40px rgba(236, 72, 153, 0.15) !important;
+        max-width: 480px !important;
+        box-shadow: 0 30px 60px -15px rgba(0,0,0,0.7),
+                    inset 0 1px 0 rgba(255,255,255,0.1),
+                    0 0 50px rgba(139, 92, 246, 0.2) !important;
         color: #ffffff !important;
-        animation: modal-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        animation: modal-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         position: relative !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
     }
     
     @keyframes modal-pop {
-        0% { transform: scale(0.9); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+        0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
     }
     
     .modal-title {
-        font-size: 1.45rem !important;
-        font-weight: 700 !important;
-        color: #ffffff !important;
+        font-size: 1.7rem !important;
+        font-weight: 800 !important;
         text-align: center !important;
-        margin: 0 0 0.5rem 0 !important;
-        background: linear-gradient(135deg, #f43f5e, #8b5cf6) !important;
+        margin: 0 0 0.4rem 0 !important;
+        background: linear-gradient(135deg, #38bdf8, #818cf8, #e879f9) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
+        letter-spacing: -0.5px !important;
     }
     
     .modal-meta {
         text-align: center !important;
         color: #94a3b8 !important;
         font-size: 0.95rem !important;
-        margin: 0 0 1.2rem 0 !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-        padding-bottom: 0.75rem !important;
+        margin: 0 0 1.6rem 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding-bottom: 1.2rem !important;
     }
     
     .model-metrics-list {
         display: flex !important;
         flex-direction: column !important;
-        gap: 0.6rem !important;
-        margin-bottom: 1.2rem !important;
+        gap: 0.8rem !important;
+        margin-bottom: 1.8rem !important;
     }
     
     .metric-item {
         display: flex !important;
         justify-content: space-between !important;
+        align-items: center !important;
         background: rgba(255, 255, 255, 0.03) !important;
-        padding: 0.6rem 0.9rem !important;
-        border-radius: 10px !important;
+        padding: 0.8rem 1.2rem !important;
+        border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        font-size: 0.9rem !important;
+        font-size: 0.95rem !important;
+        transition: all 0.25s ease !important;
+    }
+    
+    .metric-item:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        transform: translateY(-2px) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3) !important;
     }
     
     .metric-item span {
         color: #cbd5e1 !important;
+        font-weight: 500 !important;
     }
     
     .metric-item strong {
-        color: #38bdf8 !important;
+        color: #e2e8f0 !important;
+        font-weight: 700 !important;
+        font-size: 1.1rem !important;
+        text-shadow: 0 0 10px rgba(255,255,255,0.1) !important;
     }
     
     .best-model-badge {
-        background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(139, 92, 246, 0.12)) !important;
-        border: 1px solid rgba(236, 72, 153, 0.25) !important;
-        border-radius: 12px !important;
-        padding: 0.85rem !important;
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(139, 92, 246, 0.15)) !important;
+        border: 1px solid rgba(244, 63, 94, 0.3) !important;
+        border-radius: 16px !important;
+        padding: 1.2rem !important;
         text-align: center !important;
-        font-size: 0.98rem !important;
+        font-size: 1rem !important;
         color: #ffffff !important;
-        box-shadow: 0 0 15px rgba(236, 72, 153, 0.08) !important;
-        line-height: 1.4 !important;
+        box-shadow: 0 0 25px rgba(244, 63, 94, 0.15) !important;
+        line-height: 1.5 !important;
+        position: relative !important;
+        overflow: hidden !important;
+        animation: badge-pulse 3s infinite alternate !important;
+    }
+    
+    @keyframes badge-pulse {
+        0% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.1); }
+        100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.3); }
     }
     
     /* Main Close Results Button (Native Streamlit, Zero-Refresh!) */
