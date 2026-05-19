@@ -572,6 +572,17 @@ st.markdown(
         border-color: rgba(239, 68, 68, 0.4) !important;
         transform: translate(calc(-50% + 205px), calc(-50% - 195px)) scale(1.08) !important;
     }
+    
+    /* Collapse helper markdown wrappers so they occupy 0px space */
+    .floating-close-wrapper, .floating-cross-wrapper {
+        display: block !important;
+        height: 0px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 0px !important;
+        line-height: 0 !important;
+        opacity: 0 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -619,12 +630,12 @@ The live gameplay bot is now instantly upgraded with this champion model!
     )
     
     # Render native close buttons to execute zero-refresh actions natively over WebSockets
-    st.markdown('<div class="floating-cross-wrapper"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="floating-cross-wrapper">&nbsp;</div>', unsafe_allow_html=True)
     if st.button("×", key="close_retrain_modal_cross"):
         st.session_state.show_retrain_modal = False
         st.rerun()
 
-    st.markdown('<div class="floating-close-wrapper"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="floating-close-wrapper">&nbsp;</div>', unsafe_allow_html=True)
     if st.button("Close Results", key="close_retrain_modal"):
         st.session_state.show_retrain_modal = False
         st.rerun()
