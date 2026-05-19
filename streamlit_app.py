@@ -516,7 +516,7 @@ st.markdown(
     }
     
     /* Main Close Results Button (Native Streamlit, Zero-Refresh!) */
-    .floating-close-wrapper ~ div.element-container button {
+    div.element-container:has(.floating-close-wrapper) + div.element-container button {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
@@ -536,13 +536,13 @@ st.markdown(
         height: 38px !important;
     }
     
-    .floating-close-wrapper ~ div.element-container button:hover {
+    div.element-container:has(.floating-close-wrapper) + div.element-container button:hover {
         transform: translate(-50%, calc(-50% + 195px)) scale(1.04) !important;
         box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
     }
 
     /* Top-Right Cross Button (Native Streamlit, Zero-Refresh!) */
-    .floating-cross-wrapper ~ div.element-container button {
+    div.element-container:has(.floating-cross-wrapper) + div.element-container button {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
@@ -566,7 +566,7 @@ st.markdown(
         box-shadow: none !important;
     }
     
-    .floating-cross-wrapper ~ div.element-container button:hover {
+    div.element-container:has(.floating-cross-wrapper) + div.element-container button:hover {
         background: rgba(239, 68, 68, 0.2) !important;
         color: #ef4444 !important;
         border-color: rgba(239, 68, 68, 0.4) !important;
