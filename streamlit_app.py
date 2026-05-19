@@ -219,7 +219,7 @@ st.markdown(
     f"""
     <div style="text-align: center; margin-top: 0; margin-bottom: 0.5rem;">
         <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
-            AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Connect 4</span>
+            AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ASIYA IBRAHIM</span>
         </h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Hi this is Sir Rehan's project </p>
     </div>
