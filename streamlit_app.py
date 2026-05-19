@@ -205,51 +205,7 @@ elif st.session_state.retrain_status.startswith("failed"):
     err = st.session_state.retrain_status.split(":", 1)[1] if ":" in st.session_state.retrain_status else st.session_state.retrain_status
     st.sidebar.error(f"Retraining failed: {err}")
 
-# --- AI Turn Handler ---
-if st.session_state.game_active and st.session_state.current_player == -1:
-    time.sleep(0.3)
-    depth_map = {'Easy': 1, 'Medium': 3, 'Hard': 5}
-    depth = depth_map.get(st.session_state.level, 3)
-    valid_cols = get_valid_columns(st.session_state.board)
-    
-    if valid_cols:
-        best_move = None
-        # Check immediate wins/losses
-        for col in valid_cols:
-            temp = drop_piece(st.session_state.board, col, -1)
-            if temp and check_win(temp, -1):
-                best_move = col
-                break
-        if best_move is None:
-            for col in valid_cols:
-                temp = drop_piece(st.session_state.board, col, 1)
-                if temp and check_win(temp, 1):
-                    best_move = col
-                    break
-        if best_move is None:
-            best_score = -math.inf
-            best_move = valid_cols[0]
-            for col in valid_cols:
-                new_board = drop_piece(st.session_state.board, col, -1)
-                score = minimax(new_board, depth, -math.inf, math.inf, False, model)
-                if score > best_score:
-                    best_score = score
-                    best_move = col
-                    
-        new_b = drop_piece(st.session_state.board, best_move, -1)
-        if new_b:
-            st.session_state.board = new_b
-            if check_win(st.session_state.board, -1):
-                st.session_state.game_active = False
-                st.session_state.winner = -1
-                save_game_result(st.session_state.board, -1)
-            elif len(get_valid_columns(st.session_state.board)) == 0:
-                st.session_state.game_active = False
-                st.session_state.winner = 0
-                save_game_result(st.session_state.board, 0)
-            else:
-                st.session_state.current_player = 1
-    st.rerun()
+
 
 # --- Main Layout Title & Status ---
 st.markdown(
@@ -466,3 +422,52 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# --- AI Turn Handler ---
+# This runs at the very bottom, AFTER the page has fully completed rendering.
+# This ensures that the user's move is rendered immediately on their screen
+# before the AI starts its minimax computation and sleep delay.
+if st.session_state.game_active and st.session_state.current_player == -1:
+    time.sleep(1.0) # Organic 1-second thinking delay
+    depth_map = {'Easy': 1, 'Medium': 3, 'Hard': 5}
+    depth = depth_map.get(st.session_state.level, 3)
+    valid_cols = get_valid_columns(st.session_state.board)
+    
+    if valid_cols:
+        best_move = None
+        # Check immediate wins/losses
+        for col in valid_cols:
+            temp = drop_piece(st.session_state.board, col, -1)
+            if temp and check_win(temp, -1):
+                best_move = col
+                break
+        if best_move is None:
+            for col in valid_cols:
+                temp = drop_piece(st.session_state.board, col, 1)
+                if temp and check_win(temp, 1):
+                    best_move = col
+                    break
+        if best_move is None:
+            best_score = -math.inf
+            best_move = valid_cols[0]
+            for col in valid_cols:
+                new_board = drop_piece(st.session_state.board, col, -1)
+                score = minimax(new_board, depth, -math.inf, math.inf, False, model)
+                if score > best_score:
+                    best_score = score
+                    best_move = col
+                    
+        new_b = drop_piece(st.session_state.board, best_move, -1)
+        if new_b:
+            st.session_state.board = new_b
+            if check_win(st.session_state.board, -1):
+                st.session_state.game_active = False
+                st.session_state.winner = -1
+                save_game_result(st.session_state.board, -1)
+            elif len(get_valid_columns(st.session_state.board)) == 0:
+                st.session_state.game_active = False
+                st.session_state.winner = 0
+                save_game_result(st.session_state.board, 0)
+            else:
+                st.session_state.current_player = 1
+    st.rerun()
