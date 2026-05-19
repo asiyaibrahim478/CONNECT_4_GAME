@@ -144,27 +144,9 @@ if 'board' not in st.session_state:
 if 'level' not in st.session_state:
     st.session_state.level = 'Medium'
 
-# --- Hidden Streamlit Controls for Event Bridge ---
-st.markdown("""
-<style>
-.hidden-controls {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-    pointer-events: none;
-    opacity: 0;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="hidden-controls">', unsafe_allow_html=True)
-
-# 7 buttons for column moves
+# --- Event Bridge Streamlit Buttons ---
+# These are standard Streamlit buttons, but they are completely hidden in the viewport using CSS (display: none).
+# They are clicked programmatically by JavaScript to trigger Python backend logic.
 for c in range(COLS):
     if st.button(f"hidden_move_{c}", key=f"btn_move_{c}"):
         if st.session_state.game_active and st.session_state.current_player == 1:
@@ -183,13 +165,11 @@ for c in range(COLS):
                     st.session_state.current_player = -1
                 st.rerun()
 
-# 3 buttons for difficulties
 for lvl in ["easy", "medium", "hard"]:
     if st.button(f"hidden_{lvl}", key=f"btn_level_{lvl}"):
         st.session_state.level = lvl.capitalize()
         st.rerun()
 
-# Reset button
 if st.button("hidden_reset", key="btn_reset_hidden"):
     st.session_state.board = init_board()
     st.session_state.current_player = 1
@@ -197,12 +177,9 @@ if st.button("hidden_reset", key="btn_reset_hidden"):
     st.session_state.winner = 0
     st.rerun()
 
-# Retrain button
 if st.button("hidden_retrain", key="btn_retrain_hidden"):
     st.session_state.needs_retrain = True
     st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # --- AI Turn Handler ---
 if st.session_state.game_active and st.session_state.current_player == -1:
@@ -299,6 +276,9 @@ footer {
 [data-testid="collapsedControl"] {
     display: none !important;
 }
+div[data-testid="stButton"] {
+    display: none !important;
+}
 .main .block-container {
     padding: 0 !important;
     max-width: 100% !important;
@@ -310,7 +290,10 @@ footer {
 }
 """
 
-style_tag = f"<style>\n{style_css}\n{streamlit_overrides}\n</style>"
+# Strip all blank lines and whitespace from CSS to prevent markdown rendering issues
+clean_style_css = "\n".join([line.strip() for line in style_css.split("\n") if line.strip()])
+clean_streamlit_overrides = "\n".join([line.strip() for line in streamlit_overrides.split("\n") if line.strip()])
+style_tag = f"<style>\n{clean_style_css}\n{clean_streamlit_overrides}\n</style>"
 st.markdown(style_tag, unsafe_allow_html=True)
 
 # Build Difficulty Selector
@@ -319,13 +302,14 @@ btn_easy_active = "active" if difficulty == "easy" else ""
 btn_medium_active = "active" if difficulty == "medium" else ""
 btn_hard_active = "active" if difficulty == "hard" else ""
 
-difficulty_selector_html = f"""
+raw_difficulty_html = f"""
 <div class="difficulty-selector">
-    <button class="level-btn {btn_easy_active}" onclick="clickDifficulty('easy')">Easy</button>
-    <button class="level-btn {btn_medium_active}" onclick="clickDifficulty('medium')">Medium</button>
-    <button class="level-btn {btn_hard_active}" onclick="clickDifficulty('hard')">Hard</button>
+<button class="level-btn {btn_easy_active}" onclick="clickDifficulty('easy')">Easy</button>
+<button class="level-btn {btn_medium_active}" onclick="clickDifficulty('medium')">Medium</button>
+<button class="level-btn {btn_hard_active}" onclick="clickDifficulty('hard')">Hard</button>
 </div>
 """
+difficulty_selector_html = "\n".join([line.strip() for line in raw_difficulty_html.split("\n") if line.strip()])
 
 # Fetch winning cells (if game is over)
 win_cells = []
@@ -336,16 +320,17 @@ win_cells_flat = [r * COLS + c for r, c in win_cells]
 # Build Status Header
 if not st.session_state.game_active:
     if st.session_state.winner == 1:
-        status_html = '<div class="game-status win-status" id="status">Congratulations! You Win! 🌸</div>'
+        raw_status_html = '<div class="game-status win-status" id="status">Congratulations! You Win! 🌸</div>'
     elif st.session_state.winner == -1:
-        status_html = '<div class="game-status loss-status" id="status">Sorry you lost, play best for the next time. 🤖</div>'
+        raw_status_html = '<div class="game-status loss-status" id="status">Sorry you lost, play best for the next time. 🤖</div>'
     else:
-        status_html = '<div class="game-status" id="status">It\'s a Draw! 🤝</div>'
+        raw_status_html = '<div class="game-status" id="status">It\'s a Draw! 🤝</div>'
 else:
     if st.session_state.current_player == 1:
-        status_html = '<div class="game-status" id="status">Your Turn (Red)</div>'
+        raw_status_html = '<div class="game-status" id="status">Your Turn (Red)</div>'
     else:
-        status_html = f'<div class="game-status" id="status"><span style="color: #f59e0b">AI ({st.session_state.level}) is thinking...</span></div>'
+        raw_status_html = f'<div class="game-status" id="status"><span style="color: #f59e0b">AI ({st.session_state.level}) is thinking...</span></div>'
+status_html = "\n".join([line.strip() for line in raw_status_html.split("\n") if line.strip()])
 
 # Build Board Cells Grid
 board_html = ""
@@ -365,44 +350,40 @@ for i in range(ROWS * COLS):
     board_html += f'<div class="{classes_str}" onclick="clickColumn({c})"></div>\n'
 
 # Render main HTML wrapper
-main_html = f"""
+raw_main_html = f"""
 <div class="game-wrapper">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>Settings</h2>
-        </div>
-        
-        <div class="section">
-            <p class="section-title">Difficulty</p>
-            {difficulty_selector_html}
-        </div>
-
-        <div class="section">
-            <p class="section-title">Actions</p>
-            <button id="reset-btn" class="action-btn" onclick="clickReset()">Reset Game</button>
-            <button id="retrain-btn" class="action-btn retrain" onclick="clickRetrain()">Retrain AI</button>
-        </div>
-
-        <div class="footer">
-            <p>MLOps Pipeline v1.0</p>
-            <p>Logistic Regression AI</p>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <header>
-            <h1>AI <span>Connect 4</span></h1>
-            {status_html}
-        </header>
-
-        <div class="game-board-container">
-            <div class="game-board" id="board">
-                {board_html}
-            </div>
-        </div>
-    </main>
+<aside class="sidebar">
+<div class="sidebar-header">
+<h2>Settings</h2>
+</div>
+<div class="section">
+<p class="section-title">Difficulty</p>
+{difficulty_selector_html}
+</div>
+<div class="section">
+<p class="section-title">Actions</p>
+<button id="reset-btn" class="action-btn" onclick="clickReset()">Reset Game</button>
+<button id="retrain-btn" class="action-btn retrain" onclick="clickRetrain()">Retrain AI</button>
+</div>
+<div class="footer">
+<p>MLOps Pipeline v1.0</p>
+<p>Logistic Regression AI</p>
+</div>
+</aside>
+<main class="main-content">
+<header>
+<h1>AI <span>Connect 4</span></h1>
+{status_html}
+</header>
+<div class="game-board-container">
+<div class="game-board" id="board">
+{board_html}
+</div>
+</div>
+</main>
 </div>
 """
+main_html = "\n".join([line.strip() for line in raw_main_html.split("\n") if line.strip()])
 
 st.markdown(main_html, unsafe_allow_html=True)
 
@@ -415,7 +396,6 @@ if not st.session_state.game_active and st.session_state.winner == 1:
     setTimeout(function() {
         const duration = 3 * 1000;
         const end = Date.now() + duration;
-
         (function frame() {
             confetti({
                 particleCount: 7,
@@ -431,12 +411,10 @@ if not st.session_state.game_active and st.session_state.winner == 1:
                 origin: { x: 1 },
                 colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff']
             });
-
             if (Date.now() < end) {
                 requestAnimationFrame(frame);
             }
         }());
-
         confetti({
             particleCount: 150,
             spread: 100,
@@ -447,7 +425,7 @@ if not st.session_state.game_active and st.session_state.winner == 1:
     </script>
     """
 
-js_bridge_tag = f"""
+raw_js_bridge = f"""
 {confetti_html}
 {retrain_message_html}
 <script>
@@ -474,7 +452,6 @@ function clickStreamlitButton(text) {{
     }} catch (e) {{
         console.warn("Parent document access blocked:", e);
     }}
-    
     for (const btn of buttons) {{
         if (btn.innerText.trim() === text) {{
             btn.click();
@@ -493,5 +470,6 @@ function clickStreamlitButton(text) {{
 }}
 </script>
 """
+js_bridge_tag = "\n".join([line.strip() for line in raw_js_bridge.split("\n") if line.strip()])
 
 st.markdown(js_bridge_tag, unsafe_allow_html=True)
