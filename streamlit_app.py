@@ -211,7 +211,7 @@ elif st.session_state.retrain_status.startswith("failed"):
 # --- Main Layout Title & Status ---
 st.markdown(
     """
-    <div style="text-align: center; margin-top: 1rem; margin-bottom: 2rem;">
+    <div style="text-align: center; margin-top: 0; margin-bottom: 0.5rem;">
         <h1 style="color: #ffffff; font-size: 3rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
             AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Connect 4</span>
         </h1>
@@ -301,8 +301,8 @@ st.markdown(
     }
     
     .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 0rem !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
         overflow: hidden !important;
     }
     
@@ -397,7 +397,7 @@ st.markdown(
         font-weight: 600;
         font-size: 1.1rem;
         max-width: 580px;
-        margin: 0 auto 1.5rem auto;
+        margin: 0 auto 0.5rem auto;
     }
     .player-banner {
         background: rgba(244, 63, 94, 0.15);
