@@ -545,6 +545,43 @@ st.markdown(
         transform: scale(1.04) !important;
         box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
     }
+    
+    /* Floating top-right cross close button */
+    .floating-cross-wrapper {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(calc(-50% + 205px), calc(-50% - 195px)) !important; /* Top-right of 460px card */
+        z-index: 99999999 !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    .floating-cross-wrapper button {
+        background: transparent !important;
+        color: #94a3b8 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        border-radius: 50% !important;
+        font-size: 18px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        transition: all 0.2s !important;
+        box-shadow: none !important;
+    }
+    
+    .floating-cross-wrapper button:hover {
+        background: rgba(239, 68, 68, 0.2) !important;
+        color: #ef4444 !important;
+        border-color: rgba(239, 68, 68, 0.4) !important;
+        transform: scale(1.08) !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -597,6 +634,13 @@ if st.session_state.show_retrain_modal and st.session_state.retrain_metrics:
     with st.container():
         st.markdown('<div class="floating-close-wrapper">', unsafe_allow_html=True)
         if st.button("Close Results", key="close_retrain_modal"):
+            st.session_state.show_retrain_modal = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Render the native top-right 'X' close button
+        st.markdown('<div class="floating-cross-wrapper">', unsafe_allow_html=True)
+        if st.button("×", key="close_retrain_modal_cross"):
             st.session_state.show_retrain_modal = False
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
