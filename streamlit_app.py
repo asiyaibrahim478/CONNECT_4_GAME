@@ -370,7 +370,8 @@ st.markdown(
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        font-size: 26px !important;
+        font-size: 40px !important;
+        line-height: 1 !important;
         padding: 0 !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
