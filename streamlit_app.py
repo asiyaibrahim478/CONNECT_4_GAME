@@ -567,25 +567,29 @@ st.markdown(
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        transform: translate(-50%, calc(-50% + 195px)) !important;
+        transform: translate(-50%, calc(-50% + 210px)) !important;
         z-index: 99999999 !important;
-        background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
+        background: rgba(30, 41, 59, 0.8) !important;
+        backdrop-filter: blur(8px) !important;
         color: #ffffff !important;
-        border: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         padding: 0.55rem 2rem !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
         cursor: pointer !important;
-        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35) !important;
-        transition: all 0.2s !important;
-        min-width: 150px !important;
-        height: 38px !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        min-width: 160px !important;
+        height: 40px !important;
     }
     
     div.element-container:has(.floating-close-wrapper) + div.element-container button:hover {
-        transform: translate(-50%, calc(-50% + 195px)) scale(1.04) !important;
-        box-shadow: 0 6px 16px rgba(236, 72, 153, 0.45) !important;
+        transform: translate(-50%, calc(-50% + 210px)) scale(1.05) !important;
+        background: rgba(51, 65, 85, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 
+                    0 0 20px rgba(139, 92, 246, 0.3) !important;
     }
 
     /* Top-Right Cross Button (Native Streamlit, Zero-Refresh!) */
