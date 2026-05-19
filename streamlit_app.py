@@ -600,41 +600,35 @@ if st.session_state.show_retrain_modal and st.session_state.retrain_metrics:
     best_acc = metrics["best_accuracy"] * 100
     
     st.markdown(
-        f"""
-        <div class="modal-overlay">
-            <div class="modal-card">
-                <!-- Top-Right Cross Close Button Link -->
-                <a href="?close_modal=true" target="_self" class="modal-close-cross">&times;</a>
-                
-                <h3 class="modal-title">MLOps Retraining Success! 🧠</h3>
-                <p class="modal-meta">Combined play dataset: <strong>{total_rows:,} rows</strong></p>
-                <div class="model-metrics-list">
-                    <div class="metric-item">
-                        <span>Random Forest Accuracy:</span>
-                        <strong>{rf_acc:.2f}%</strong>
-                    </div>
-                    <div class="metric-item">
-                        <span>Gradient Boosting Accuracy:</span>
-                        <strong>{gb_acc:.2f}%</strong>
-                    </div>
-                    <div class="metric-item">
-                        <span>Logistic Regression Accuracy:</span>
-                        <strong>{lr_acc:.2f}%</strong>
-                    </div>
-                </div>
-                <div class="best-model-badge">
-                    🏆 Champion Model Promoted: <br>
-                    <strong style="color: #f59e0b; font-size: 1.05rem;">{best_model} ({best_acc:.2f}%)</strong>
-                </div>
-                <p style="font-size: 0.82rem; color: #94a3b8; text-align: center; margin-top: 1rem; margin-bottom: 0;">
-                    The live gameplay bot is now instantly upgraded with this champion model!
-                </p>
-                
-                <!-- Main Close Button Link -->
-                <a href="?close_modal=true" target="_self" class="modal-close-btn">Close Results</a>
-            </div>
-        </div>
-        """,
+f"""<div class="modal-overlay">
+<div class="modal-card">
+<a href="?close_modal=true" target="_self" class="modal-close-cross">&times;</a>
+<h3 class="modal-title">MLOps Retraining Success! 🧠</h3>
+<p class="modal-meta">Combined play dataset: <strong>{total_rows:,} rows</strong></p>
+<div class="model-metrics-list">
+<div class="metric-item">
+<span>Random Forest Accuracy:</span>
+<strong>{rf_acc:.2f}%</strong>
+</div>
+<div class="metric-item">
+<span>Gradient Boosting Accuracy:</span>
+<strong>{gb_acc:.2f}%</strong>
+</div>
+<div class="metric-item">
+<span>Logistic Regression Accuracy:</span>
+<strong>{lr_acc:.2f}%</strong>
+</div>
+</div>
+<div class="best-model-badge">
+🏆 Champion Model Promoted: <br>
+<strong style="color: #f59e0b; font-size: 1.05rem;">{best_model} ({best_acc:.2f}%)</strong>
+</div>
+<p style="font-size: 0.82rem; color: #94a3b8; text-align: center; margin-top: 1rem; margin-bottom: 0;">
+The live gameplay bot is now instantly upgraded with this champion model!
+</p>
+<a href="?close_modal=true" target="_self" class="modal-close-btn">Close Results</a>
+</div>
+</div>""",
         unsafe_allow_html=True
     )
 
