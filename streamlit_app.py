@@ -6,7 +6,6 @@ import math
 import subprocess
 import sys
 import time
-import html
 from connect_db import save_game_result
 
 st.set_page_config(page_title="AI Connect 4 - MLOps Dashboard", layout="wide")
@@ -144,43 +143,59 @@ if 'board' not in st.session_state:
     st.session_state.winner = 0
 if 'level' not in st.session_state:
     st.session_state.level = 'Medium'
+if 'retrain_status' not in st.session_state:
+    st.session_state.retrain_status = ""
 
-# --- Event Bridge Streamlit Buttons ---
-# These are standard Streamlit buttons, but they are completely hidden in the viewport using CSS (display: none).
-# They are clicked programmatically by JavaScript to trigger Python backend logic.
-for c in range(COLS):
-    if st.button(f"hidden_move_{c}", key=f"btn_move_{c}"):
-        if st.session_state.game_active and st.session_state.current_player == 1:
-            new_b = drop_piece(st.session_state.board, c, 1)
-            if new_b:
-                st.session_state.board = new_b
-                if check_win(st.session_state.board, 1):
-                    st.session_state.game_active = False
-                    st.session_state.winner = 1
-                    save_game_result(st.session_state.board, 1)
-                elif len(get_valid_columns(st.session_state.board)) == 0:
-                    st.session_state.game_active = False
-                    st.session_state.winner = 0
-                    save_game_result(st.session_state.board, 0)
-                else:
-                    st.session_state.current_player = -1
-                st.rerun()
-
-for lvl in ["easy", "medium", "hard"]:
-    if st.button(f"hidden_{lvl}", key=f"btn_level_{lvl}"):
-        st.session_state.level = lvl.capitalize()
+# --- Native Query Parameters Action Handler ---
+params = st.query_params
+if params:
+    # 1. Column click action
+    if "col" in params:
+        try:
+            col = int(params["col"])
+            if st.session_state.game_active and st.session_state.current_player == 1:
+                new_b = drop_piece(st.session_state.board, col, 1)
+                if new_b:
+                    st.session_state.board = new_b
+                    if check_win(st.session_state.board, 1):
+                        st.session_state.game_active = False
+                        st.session_state.winner = 1
+                        save_game_result(st.session_state.board, 1)
+                    elif len(get_valid_columns(st.session_state.board)) == 0:
+                        st.session_state.game_active = False
+                        st.session_state.winner = 0
+                        save_game_result(st.session_state.board, 0)
+                    else:
+                        st.session_state.current_player = -1
+        except Exception as e:
+            pass
+        st.query_params.clear()
         st.rerun()
 
-if st.button("hidden_reset", key="btn_reset_hidden"):
-    st.session_state.board = init_board()
-    st.session_state.current_player = 1
-    st.session_state.game_active = True
-    st.session_state.winner = 0
-    st.rerun()
+    # 2. Difficulty selection action
+    elif "difficulty" in params:
+        lvl = params["difficulty"]
+        if lvl in ["easy", "medium", "hard"]:
+            st.session_state.level = lvl.capitalize()
+            st.session_state.retrain_status = ""
+        st.query_params.clear()
+        st.rerun()
 
-if st.button("hidden_retrain", key="btn_retrain_hidden"):
-    st.session_state.needs_retrain = True
-    st.rerun()
+    # 3. Reset game action
+    elif "action" in params and params["action"] == "reset":
+        st.session_state.board = init_board()
+        st.session_state.current_player = 1
+        st.session_state.game_active = True
+        st.session_state.winner = 0
+        st.session_state.retrain_status = ""
+        st.query_params.clear()
+        st.rerun()
+
+    # 4. Retrain AI action
+    elif "action" in params and params["action"] == "retrain":
+        st.session_state.retrain_status = "training"
+        st.query_params.clear()
+        st.rerun()
 
 # --- AI Turn Handler ---
 if st.session_state.game_active and st.session_state.current_player == -1:
@@ -231,27 +246,25 @@ if st.session_state.game_active and st.session_state.current_player == -1:
                 st.session_state.current_player = 1
     st.rerun()
 
-# --- Retraining Executer ---
-retrain_message = ""
-if st.session_state.get('needs_retrain', False):
-    st.session_state.needs_retrain = False
-    
+# --- Retraining Executor ---
+if st.session_state.retrain_status == "training":
     script_path = os.path.join(BASE_DIR, "train_models.py")
     result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, cwd=BASE_DIR)
     
     if result.returncode == 0:
-        retrain_message = "AI Retrained successfully! It is now smarter."
+        st.session_state.retrain_status = "success"
         load_ml_model.clear()
         model = load_ml_model()
     else:
         try:
             from train_models import preprocess_and_train
             preprocess_and_train()
-            retrain_message = "AI Retrained successfully (fallback)! It is now smarter."
+            st.session_state.retrain_status = "success"
             load_ml_model.clear()
             model = load_ml_model()
         except Exception as e:
-            retrain_message = f"Retraining failed: {str(e)}"
+            st.session_state.retrain_status = f"failed: {str(e)}"
+    st.rerun()
 
 # --- HTML/CSS Compiler & Renderer ---
 
@@ -301,6 +314,24 @@ div[data-testid="stButton"] {
     z-index: 999999 !important;
     background-color: #0b0f1a !important;
 }
+/* Style adjustments for HTML links acting as buttons */
+.level-btn {
+    display: inline-block !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+}
+.action-btn {
+    display: block !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+}
+.cell-link {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-decoration: none !important;
+    border-radius: 50% !important;
+}
 """
 
 # Strip all blank lines and whitespace from CSS to prevent markdown rendering issues
@@ -317,9 +348,9 @@ btn_hard_active = "active" if difficulty == "hard" else ""
 
 raw_difficulty_html = f"""
 <div class="difficulty-selector">
-<button class="level-btn {btn_easy_active}" onclick="clickDifficulty('easy')">Easy</button>
-<button class="level-btn {btn_medium_active}" onclick="clickDifficulty('medium')">Medium</button>
-<button class="level-btn {btn_hard_active}" onclick="clickDifficulty('hard')">Hard</button>
+<a class="level-btn {btn_easy_active}" href="?difficulty=easy" target="_self">Easy</a>
+<a class="level-btn {btn_medium_active}" href="?difficulty=medium" target="_self">Medium</a>
+<a class="level-btn {btn_hard_active}" href="?difficulty=hard" target="_self">Hard</a>
 </div>
 """
 difficulty_selector_html = "\n".join([line.strip() for line in raw_difficulty_html.split("\n") if line.strip()])
@@ -360,7 +391,20 @@ for i in range(ROWS * COLS):
         classes.append("win")
         
     classes_str = " ".join(classes)
-    board_html += f'<div class="{classes_str}" onclick="clickColumn({c})"></div>\n'
+    
+    # Empty clickable cells are styled as standard HTML anchor links targets
+    if st.session_state.game_active and st.session_state.current_player == 1 and val == 0:
+        board_html += f'<a class="{classes_str}" href="?col={c}" target="_self"></a>\n'
+    else:
+        board_html += f'<div class="{classes_str}"></div>\n'
+
+# Build Retraining Status Alert Message
+retrain_message_html = ""
+if st.session_state.retrain_status == "success":
+    retrain_message_html = '<div class="game-status win-status" style="margin-top: 1rem; font-size: 0.85rem; padding: 0.5rem; text-align: center;">AI Retrained successfully! 🧠</div>'
+elif st.session_state.retrain_status.startswith("failed"):
+    err = st.session_state.retrain_status.split(":", 1)[1]
+    retrain_message_html = f'<div class="game-status loss-status" style="margin-top: 1rem; font-size: 0.85rem; padding: 0.5rem; text-align: center;">Train failed: {err}</div>'
 
 # Render main HTML wrapper
 raw_main_html = f"""
@@ -375,8 +419,9 @@ raw_main_html = f"""
 </div>
 <div class="section">
 <p class="section-title">Actions</p>
-<button id="reset-btn" class="action-btn" onclick="clickReset()">Reset Game</button>
-<button id="retrain-btn" class="action-btn retrain" onclick="clickRetrain()">Retrain AI</button>
+<a id="reset-btn" class="action-btn" href="?action=reset" target="_self">Reset Game</a>
+<a id="retrain-btn" class="action-btn retrain" href="?action=retrain" target="_self" style="margin-top: 0.5rem;">Retrain AI</a>
+{retrain_message_html}
 </div>
 <div class="footer">
 <p>MLOps Pipeline v1.0</p>
@@ -399,102 +444,3 @@ raw_main_html = f"""
 main_html = "\n".join([line.strip() for line in raw_main_html.split("\n") if line.strip()])
 
 st.markdown(main_html, unsafe_allow_html=True)
-
-# Build Event Bridge JavaScript inside a Same-Origin Iframe
-js_content = ""
-
-# Add retrain notification alert
-if retrain_message:
-    js_content += f"\nalert({repr(retrain_message)});\n"
-
-# Add Canvas Confetti loading and animation if user won
-if not st.session_state.game_active and st.session_state.winner == 1:
-    js_content += """
-    if (!window.parent.document.querySelector('script[src*="canvas-confetti"]')) {
-        const script = window.parent.document.createElement('script');
-        script.src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js";
-        window.parent.document.head.appendChild(script);
-    }
-    
-    setTimeout(function() {
-        if (typeof window.parent.confetti === 'function') {
-            runCelebration();
-        } else {
-            let checkInterval = setInterval(function() {
-                if (typeof window.parent.confetti === 'function') {
-                    clearInterval(checkInterval);
-                    runCelebration();
-                }
-            }, 100);
-        }
-    }, 200);
-
-    function runCelebration() {
-        const duration = 3 * 1000;
-        const end = Date.now() + duration;
-        (function frame() {
-            window.parent.confetti({
-                particleCount: 7,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff']
-            });
-            window.parent.confetti({
-                particleCount: 7,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff']
-            });
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
-        window.parent.confetti({
-            particleCount: 150,
-            spread: 100,
-            origin: { y: 0.6 },
-            colors: ['#ff69b4', '#ff1493', '#ff00ff', '#ffffff', '#ef4444']
-        });
-    }
-    """
-
-# Add core event bridge handlers directly onto window.parent (the main window scope)
-js_content += """
-window.parent.clickColumn = function(col) {
-    window.parent.clickStreamlitButton('hidden_move_' + col);
-};
-window.parent.clickDifficulty = function(level) {
-    window.parent.clickStreamlitButton('hidden_' + level);
-};
-window.parent.clickReset = function() {
-    window.parent.clickStreamlitButton('hidden_reset');
-};
-window.parent.clickRetrain = function() {
-    if (confirm('This will retrain all models using your latest game history. Continue?')) {
-        window.parent.clickStreamlitButton('hidden_retrain');
-    }
-};
-window.parent.clickStreamlitButton = function(text) {
-    let buttons = Array.from(window.parent.document.querySelectorAll('button'));
-    for (const btn of buttons) {
-        if (btn.textContent.trim() === text) {
-            btn.click();
-            return true;
-        }
-    }
-    console.error('Streamlit button not found: ' + text);
-    return false;
-};
-"""
-
-# Compress JavaScript content to be markdown-safe (no empty lines, no leading spaces)
-clean_js_content = "\n".join([line.strip() for line in js_content.split("\n") if line.strip()])
-
-# Escape the JS content to prevent it from breaking the HTML srcdoc attribute quotes
-escaped_js_content = html.escape(clean_js_content)
-
-# Build same-origin iframe tag containing the Javascript
-js_bridge_tag = f'<iframe srcdoc="<script>\n{escaped_js_content}\n</script>" style="display:none;width:0;height:0;border:none;"></iframe>'
-st.markdown(js_bridge_tag, unsafe_allow_html=True)
