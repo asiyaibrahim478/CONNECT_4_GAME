@@ -264,6 +264,13 @@ except Exception as e:
 
 streamlit_overrides = """
 /* Streamlit UI overrides */
+html, body {
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 [data-testid="stHeader"] {
     display: none !important;
 }
@@ -285,8 +292,13 @@ div[data-testid="stButton"] {
     height: 100vh !important;
 }
 .game-wrapper {
-    height: 100vh;
-    width: 100vw;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    background-color: #0b0f1a !important;
 }
 """
 
@@ -453,16 +465,9 @@ function clickStreamlitButton(text) {{
         console.warn("Parent document access blocked:", e);
     }}
     for (const btn of buttons) {{
-        if (btn.innerText.trim() === text) {{
+        if (btn.textContent.trim() === text) {{
             btn.click();
             return true;
-        }}
-        const spans = btn.querySelectorAll('span');
-        for (const span of spans) {{
-            if (span.innerText.trim() === text) {{
-                btn.click();
-                return true;
-            }}
         }}
     }}
     console.error("Streamlit button not found: " + text);
