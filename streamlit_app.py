@@ -370,10 +370,18 @@ st.markdown(
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        font-size: 40px !important;
+        font-size: 44px !important;
         line-height: 1 !important;
         padding: 0 !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Target nested elements to override Streamlit paragraph font-size restrictions */
+    div[data-testid="stHorizontalBlock"] button * {
+        font-size: 44px !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     
     /* Interactive Hover on empty slots during player turn */
