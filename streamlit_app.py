@@ -121,166 +121,149 @@ if 'board' not in st.session_state:
 # --- UI Setup ---
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Outfit', sans-serif;
 }
 
-[data-testid="stSidebar"] { display: none !important; }
-[data-testid="collapsedControl"] { display: none !important; }
-[data-testid="stHeader"] { display: none !important; }
-footer { display: none !important; }
-
 [data-testid="stAppViewContainer"] {
-    background-color: #040914 !important;
-}
-
-/* Main Layout Gaps */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(2)):not(:has(> div[data-testid="column"]:nth-of-type(3))) {
-    gap: 30px;
-    padding: 20px;
-}
-
-/* Left Panel (Settings) */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(2)):not(:has(> div[data-testid="column"]:nth-of-type(3))) > div[data-testid="column"]:nth-of-type(1) {
-    background-color: #0b1221;
-    border: 1px solid #1e293b;
-    border-radius: 15px;
-    padding: 25px;
-    height: fit-content;
-}
-
-/* Right Panel (Game Area) */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(2)):not(:has(> div[data-testid="column"]:nth-of-type(3))) > div[data-testid="column"]:nth-of-type(2) {
-    background-color: #081021;
-    border: 1px solid #14223d;
-    border-radius: 15px;
-    padding: 40px;
-}
-
-/* Sidebar Buttons General */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(2)):not(:has(> div[data-testid="column"]:nth-of-type(3))) > div[data-testid="column"]:nth-of-type(1) div[data-testid="stButton"] > button {
-    width: 100%;
-    border-radius: 10px;
-    font-weight: 800;
-    font-size: 1rem;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    background-color: #0b1120;
     color: white;
-    transition: all 0.2s;
+}
+[data-testid="stHeader"] {
     background-color: transparent;
-    margin-bottom: 5px;
+}
+[data-testid="stSidebar"] {
+    background-color: #111827;
 }
 
-/* Reset Button */
-div[data-testid="column"]:nth-of-type(1) div.element-container:nth-of-type(6) button {
-    background: linear-gradient(180deg, #38bdf8, #2563eb) !important;
-    border: none !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
-    justify-content: center !important;
+.main-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.main-header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+}
+.main-header h1 span {
+    color: #38bdf8;
 }
 
-/* Retrain Button */
-div[data-testid="column"]:nth-of-type(1) div.element-container:nth-of-type(7) button {
-    background: linear-gradient(180deg, #c084fc, #7e22ce) !important;
-    border: none !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
-    justify-content: center !important;
-}
-
-/* Custom Board and Header CSS */
-
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) {
-    background: linear-gradient(180deg, #0f40a3, #092c73);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 
-        10px 10px 25px rgba(0,0,0,0.6), 
-        inset 0px 4px 6px rgba(255,255,255,0.2), 
-        inset 0px -4px 6px rgba(0,0,0,0.3);
-    border: 2px solid #1a56d4;
-    width: fit-content !important;
+/* Board Styling */
+.board-container {
+    background: linear-gradient(180deg, #1e40af, #1e3a8a);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 4px 6px rgba(255,255,255,0.1);
     margin: 0 auto;
-    gap: 15px;
-    display: flex;
-    justify-content: center;
+    width: fit-content;
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"] {
-    width: 60px !important;
-    min-width: 60px !important;
-    flex: none !important;
-    gap: 15px;
+.board {
+    display: grid;
+    grid-template-columns: repeat(7, 50px);
+    grid-gap: 10px;
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) button {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    border: none !important;
-    padding: 0 !important;
-    transition: transform 0.1s;
-    background: #091224; /* deep dark hole */
-    box-shadow: 
-        inset 5px 5px 10px rgba(0,0,0,0.8),
-        inset -2px -2px 5px rgba(255,255,255,0.05) !important;
+.cell {
+    width: 50px;
+    height: 50px;
+    background: #0f172a;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: inset 0 5px 10px rgba(0,0,0,0.8);
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) button p {
-    display: none !important;
+.cell.red::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: radial-gradient(circle at 35% 35%, #ef4444 0%, #b91c1c 100%);
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), inset 3px 3px 6px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.cell.yellow::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: radial-gradient(circle at 35% 35%, #facc15 0%, #b45309 100%);
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), inset 3px 3px 6px rgba(255,255,255,0.3), 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.cell.win::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    animation: pulse-win 1.5s infinite;
+}
+
+.cell.win::after {
+    border: 3px solid white;
+    box-shadow: 0 0 15px white;
+}
+
+@keyframes pulse-win {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 10px 30px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+}
+.status-turn {
+    border: 2px solid #047857; background: #064e3b; color: #34d399;
+}
+.status-ai {
+    border: 2px solid #854d0e; background: #422006; color: #fbbf24;
+}
+.status-win {
+    border: 2px solid #047857; background: #064e3b; color: #34d399;
+}
+.status-loss {
+    border: 2px solid #991b1b; background: #450a0a; color: #f87171;
+}
+.status-draw {
+    border: 2px solid #374151; background: #1f2937; color: #9ca3af;
+}
+
+/* Button override to make drop buttons look seamless */
+.stButton > button {
+    border-radius: 20px;
+    font-weight: 800;
+    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
 
-if 'level' not in st.session_state:
-    st.session_state.level = 'Medium'
-
-def set_level(lvl):
-    st.session_state.level = lvl
-
-# Dynamic CSS for Left Panel Settings Buttons
-css = f"""
-<style>
-/* Easy Button */
-div[data-testid="column"]:nth-of-type(1) div.element-container:nth-of-type(2) button {{
-    border: 2px solid {'#22c55e' if st.session_state.level == 'Easy' else '#166534'} !important;
-    background: {'linear-gradient(90deg, rgba(34,197,94,0.3) 0%, transparent 100%)' if st.session_state.level == 'Easy' else '#0b1221'} !important;
-}}
-/* Medium Button */
-div[data-testid="column"]:nth-of-type(1) div.element-container:nth-of-type(3) button {{
-    border: 2px solid {'#eab308' if st.session_state.level == 'Medium' else '#854d0e'} !important;
-    background: {'linear-gradient(90deg, rgba(234,179,8,0.3) 0%, transparent 100%)' if st.session_state.level == 'Medium' else '#0b1221'} !important;
-}}
-/* Hard Button */
-div[data-testid="column"]:nth-of-type(1) div.element-container:nth-of-type(4) button {{
-    border: 2px solid {'#ef4444' if st.session_state.level == 'Hard' else '#991b1b'} !important;
-    background: {'linear-gradient(90deg, rgba(239,68,68,0.3) 0%, transparent 100%)' if st.session_state.level == 'Hard' else '#0b1221'} !important;
-}}
-</style>
-"""
-st.markdown(css, unsafe_allow_html=True)
-
-left_panel, right_panel = st.columns([1, 2.5])
-
-with left_panel:
-    st.markdown('<div style="color: white; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 15px;"><span style="font-size: 1.5rem;">⚙️</span> SETTINGS</div><hr style="border-color: #1e2a44; margin: 0 0 15px 0;"><div style="color: white; font-weight: 800; font-size: 0.9rem; margin-bottom: 10px; letter-spacing: 1px;">DIFFICULTY</div>', unsafe_allow_html=True)
+with st.sidebar:
+    st.header("⚙️ Settings")
+    level = st.radio("Difficulty", ['Easy', 'Medium', 'Hard'], index=1)
     
-    st.button("🟢  EASY", on_click=set_level, args=('Easy',), key="btn_easy")
-    st.button("🟡  MEDIUM", on_click=set_level, args=('Medium',), key="btn_medium")
-    st.button("🔴  HARD", on_click=set_level, args=('Hard',), key="btn_hard")
-    
-    st.markdown('<hr style="border-color: #1e2a44; margin: 20px 0;">', unsafe_allow_html=True)
-    if st.button("🔄  RESET GAME", key="btn_reset"):
+    st.markdown("---")
+    st.header("Actions")
+    if st.button("🔄 Reset Game", use_container_width=True):
         st.session_state.board = init_board()
         st.session_state.current_player = 1
         st.session_state.game_active = True
         st.session_state.winner = 0
         st.rerun()
         
-    if st.button("🧠  RETRAIN AI", key="btn_retrain"):
+    if st.button("🧠 Retrain AI", use_container_width=True):
         with st.spinner("Retraining..."):
             script_path = os.path.join(BASE_DIR, "train_models.py")
             result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, cwd=BASE_DIR)
@@ -296,35 +279,32 @@ with left_panel:
                 except Exception as e:
                     st.error(f"Retraining failed: {e}")
 
-with right_panel:
-    status_html = ""
-    if not st.session_state.game_active:
-        if st.session_state.winner == 1:
-            status_html = '<div style="display: inline-block; padding: 10px 40px; border-radius: 30px; border: 2px solid #047857; background: #064e3b; color: #34d399; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);">🏆 CONGRATULATIONS! YOU WIN! 🎉</div>'
-            st.balloons()
-        elif st.session_state.winner == -1:
-            status_html = '<div style="display: inline-block; padding: 10px 40px; border-radius: 30px; border: 2px solid #991b1b; background: #450a0a; color: #f87171; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);">🤖 AI WINS! TRY AGAIN.</div>'
-        else:
-            status_html = '<div style="display: inline-block; padding: 10px 40px; border-radius: 30px; border: 2px solid #374151; background: #1f2937; color: #9ca3af; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);">🤝 IT\'S A DRAW!</div>'
+status_html = ""
+if not st.session_state.game_active:
+    if st.session_state.winner == 1:
+        status_html = '<div class="status-badge status-win">🏆 YOU WIN! 🎉</div>'
+        st.balloons()
+    elif st.session_state.winner == -1:
+        status_html = '<div class="status-badge status-loss">🤖 AI WINS! TRY AGAIN.</div>'
     else:
-        if st.session_state.current_player == 1:
-            status_html = '<div style="display: inline-block; padding: 10px 40px; border-radius: 30px; border: 2px solid #047857; background: #064e3b; color: #34d399; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);">👤 YOUR TURN</div>'
-        else:
-            status_html = '<div style="display: inline-block; padding: 10px 40px; border-radius: 30px; border: 2px solid #854d0e; background: #422006; color: #fbbf24; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);">🤖 AI IS THINKING...</div>'
+        status_html = '<div class="status-badge status-draw">🤝 IT\'S A DRAW!</div>'
+else:
+    if st.session_state.current_player == 1:
+        status_html = '<div class="status-badge status-turn">👤 YOUR TURN</div>'
+    else:
+        status_html = '<div class="status-badge status-ai">🤖 AI IS THINKING...</div>'
 
-    st.markdown(f"""
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 4rem; margin: 0; font-weight: 800; letter-spacing: 3px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-            <span style="color: #38bdf8;">AI</span> <span style="color: white;">CONNECT 4</span>
-        </h1>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; margin-bottom: 25px;">
-            <hr style="width: 150px; border-color: #374151; margin: 0;">
-            <div style="width: 12px; height: 12px; background: #eab308; border-radius: 50%;"></div>
-            <hr style="width: 150px; border-color: #374151; margin: 0;">
-        </div>
-        {{status_html}}
+st.markdown(f"""
+<div class="main-header">
+    <h1><span>AI</span> CONNECT 4</h1>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; margin-bottom: 25px;">
+        <hr style="width: 100px; border-color: #374151; margin: 0;">
+        <div style="width: 10px; height: 10px; background: #eab308; border-radius: 50%;"></div>
+        <hr style="width: 100px; border-color: #374151; margin: 0;">
     </div>
-    """.format(status_html=status_html), unsafe_allow_html=True)
+    {status_html}
+</div>
+""", unsafe_allow_html=True)
 
 def make_move(col):
     if st.session_state.game_active and st.session_state.current_player == 1:
@@ -341,12 +321,11 @@ def make_move(col):
                 save_game_result(st.session_state.board, 0)
             else:
                 st.session_state.current_player = -1
-            # Rerun will happen automatically when button is clicked
 
 # AI Move Logic
 if st.session_state.game_active and st.session_state.current_player == -1:
     depth_map = {'Easy': 1, 'Medium': 3, 'Hard': 5}
-    depth = depth_map.get(st.session_state.level, 3)
+    depth = depth_map.get(level, 3)
     
     valid_cols = get_valid_columns(st.session_state.board)
     best_move = None
@@ -389,22 +368,18 @@ if st.session_state.game_active and st.session_state.current_player == -1:
     st.rerun()
 
 def get_win_cells(board, player):
-    # horizontal
     for r in range(ROWS):
         for c in range(COLS - 3):
             if all(board[r*COLS + c + i] == player for i in range(4)):
                 return [(r, c+i) for i in range(4)]
-    # vertical
     for r in range(ROWS - 3):
         for c in range(COLS):
             if all(board[(r+i)*COLS + c] == player for i in range(4)):
                 return [(r+i, c) for i in range(4)]
-    # diagonal positive
     for r in range(ROWS - 3):
         for c in range(COLS - 3):
             if all(board[(r+i)*COLS + c + i] == player for i in range(4)):
                 return [(r+i, c+i) for i in range(4)]
-    # diagonal negative
     for r in range(3, ROWS):
         for c in range(COLS - 3):
             if all(board[(r-i)*COLS + c + i] == player for i in range(4)):
@@ -415,27 +390,27 @@ win_cells = []
 if not st.session_state.game_active and st.session_state.winner != 0:
     win_cells = get_win_cells(st.session_state.board, st.session_state.winner)
 
-# --- Dynamic Board Colors ---
-css = "<style>\\n"
-for c in range(COLS):
-    for r in range(ROWS):
-        val = st.session_state.board[r*COLS + c]
-        is_win = (r, c) in win_cells
-        selector = f'div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-of-type(7)) > div[data-testid="column"]:nth-of-type({c+1}) div.element-container:nth-of-type({r+1}) button'
-        
-        if val == 1:
-            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #ff7676 0%, #e02a2a 40%, #8b0000 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.4), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
-        elif val == -1:
-            css += f'{selector} {{ background: radial-gradient(circle at 35% 35%, #fff085 0%, #facc15 40%, #b45309 100%) !important; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.6), inset 4px 4px 8px rgba(255,255,255,0.6), 3px 3px 6px rgba(0,0,0,0.6) !important; }}\\n'
-            
-        if is_win:
-            css += f'{selector} {{ border: 3px solid white !important; box-shadow: 0 0 15px white, inset 0 0 10px white !important; }}\\n'
-css += "</style>"
-st.markdown(css, unsafe_allow_html=True)
-
 # --- Draw Board ---
-board_cols = st.columns(7)
-for c in range(COLS):
-    with board_cols[c]:
-        for r in range(ROWS):
-            st.button(" ", key=f"btn_{r}_{c}", on_click=make_move, args=(c,), disabled=not st.session_state.game_active)
+spacer_left, center_col, spacer_right = st.columns([1, 1.5, 1])
+
+with center_col:
+    # Top buttons to act as droppers
+    st.markdown('<div style="width: fit-content; margin: 0 auto; display: grid; grid-template-columns: repeat(7, 50px); grid-gap: 10px; margin-bottom: 5px;">', unsafe_allow_html=True)
+    btn_cols = st.columns(7)
+    for i in range(7):
+        with btn_cols[i]:
+            st.button("🔽", key=f"col_{i}", on_click=make_move, args=(i,), disabled=not st.session_state.game_active, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    board_html = '<div class="board-container"><div class="board">'
+    for r in range(ROWS):
+        for c in range(COLS):
+            val = st.session_state.board[r*COLS + c]
+            color_class = ""
+            win_class = " win" if (r, c) in win_cells else ""
+            if val == 1: color_class = "red"
+            elif val == -1: color_class = "yellow"
+            board_html += f'<div class="cell {color_class}{win_class}"></div>'
+    board_html += '</div></div>'
+
+    st.markdown(board_html, unsafe_allow_html=True)
