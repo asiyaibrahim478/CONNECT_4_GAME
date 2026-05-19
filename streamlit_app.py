@@ -287,9 +287,23 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
     
     /* Viewport adjustments */
-    body {
+    html, body {
         background-color: #0f172a !important;
         font-family: 'Outfit', sans-serif !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100vh !important;
+    }
+    
+    .stApp {
+        overflow: hidden !important;
+    }
+    
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 0rem !important;
+        overflow: hidden !important;
     }
     
     /* Style the columns container to represent the Connect 4 Board */
@@ -300,7 +314,7 @@ st.markdown(
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 
                     0 0 30px rgba(59, 130, 246, 0.3) !important;
         max-width: 580px !important;
-        margin: 2rem auto !important;
+        margin: 0.5rem auto !important;
         gap: 12px !important;
         display: flex !important;
         justify-content: center !important;
