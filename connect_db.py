@@ -67,6 +67,7 @@ def load_all_data():
             print(f"MySQL history loading skipped: {e}")
             
     # 4. Construct the training dataset
+    combined_df = None
     if df_orig is not None:
         columns = df_orig.columns.tolist()
         if df_hist is not None and not df_hist.empty:
@@ -78,16 +79,32 @@ def load_all_data():
             for col in columns:
                 df_hist[col] = df_hist[col].astype(df_orig[col].dtype)
             combined_df = pd.concat([df_orig, df_hist], ignore_index=True)
-            return combined_df
-        return df_orig
+        else:
+            combined_df = df_orig
     else:
         # Fallback: if MySQL is offline, check if we have accumulated local CSV game history to train on
         if df_hist is not None and not df_hist.empty:
             print("MySQL offline. Using recorded game history CSV for retraining.")
-            return df_hist
+            combined_df = df_hist
         else:
-            # Ultimate resilience: generate a synthetic Connect 4 board dataset to allow training to complete
-            return generate_synthetic_dataset()
+            combined_df = None
+
+    # Guarantee dataset is robustly sized (>= 20 rows) for stable train/test splitting
+    if combined_df is None or len(combined_df) < 20:
+        print(f"Accumulated dataset size ({len(combined_df) if combined_df is not None else 0} rows) is too small for stable training. Merging with 2,000 synthetic samples.")
+        df_syn = generate_synthetic_dataset(num_samples=2000)
+        if combined_df is not None and not combined_df.empty:
+            # Make sure column structures match
+            columns = df_syn.columns.tolist()
+            for col in columns:
+                if col not in combined_df.columns:
+                    combined_df[col] = 0
+            combined_df = combined_df[columns]
+            combined_df = pd.concat([combined_df, df_syn], ignore_index=True)
+        else:
+            combined_df = df_syn
+
+    return combined_df
 
 def setup_history_table():
     """Creates the game_history table if it doesn't exist."""
