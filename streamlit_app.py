@@ -221,7 +221,7 @@ st.markdown(
         <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
             AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Connect 4</span>
         </h1>
-        <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Beat the {active_model_str} powered AI bot</p>
+        <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Hi this is Sir Rehan's project </p>
     </div>
     """,
     unsafe_allow_html=True
