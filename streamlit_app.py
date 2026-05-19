@@ -27,6 +27,12 @@ def load_ml_model():
     return None
 
 model = load_ml_model()
+model_name_map = {
+    "RandomForestClassifier": "Random Forest",
+    "GradientBoostingClassifier": "Gradient Boosting",
+    "LogisticRegression": "Logistic Regression"
+}
+active_model_str = model_name_map.get(type(model).__name__, "Logistic Regression") if model else "Logistic Regression"
 
 # --- Game Engine ---
 ROWS = 6
@@ -210,12 +216,12 @@ elif st.session_state.retrain_status.startswith("failed"):
 
 # --- Main Layout Title & Status ---
 st.markdown(
-    """
+    f"""
     <div style="text-align: center; margin-top: 0; margin-bottom: 0.5rem;">
         <h1 style="color: #ffffff; font-size: 2.2rem; font-weight: 800; margin: 0; font-family: 'Outfit', sans-serif;">
             AI <span style="background: linear-gradient(135deg, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Connect 4</span>
         </h1>
-        <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Beat the Logistic Regression powered AI bot</p>
+        <p style="color: #94a3b8; font-size: 1.1rem; margin: 0.5rem 0 0 0;">Beat the {active_model_str} powered AI bot</p>
     </div>
     """,
     unsafe_allow_html=True
